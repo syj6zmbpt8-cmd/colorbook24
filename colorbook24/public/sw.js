@@ -1,5 +1,5 @@
 /* Colorbook24 service worker: alles offline beschikbaar */
-const V = 'cb24-v1';
+const V = 'cb24-v2';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'pages/index.json'];
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
