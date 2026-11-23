@@ -34,7 +34,8 @@ TYPE    Fredoka (koppen) + Nunito (tekst); ui-rounded als offline terugval
   --edge:#3e3a4f;--shade:#000;color-scheme:dark;
 }
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;margin:0}
+html,body{height:100%;margin:0;touch-action:manipulation}
+.editor,.editor *{touch-action:none}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--fb);overflow:hidden;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
 button,input,select{font:inherit;color:inherit}
@@ -865,7 +866,7 @@ function dominantColors(c, frac=0.002){
 class View{
   constructor(vp,stage,cb){
     this.vp=vp;this.stage=stage;this.cb=cb;this.s=1;this.tx=0;this.ty=0;this.w=1;this.h=1;
-    this.touches=new Map();this.drawId=null;this.penOn=false;this.g=null;this.tap=null;this.pencilOnly=false;
+    this.touches=new Map();this.drawId=null;this.allowZoom=true;this.penOn=false;this.g=null;this.tap=null;this.pencilOnly=false;
     const o={passive:false};
     vp.addEventListener('pointerdown',e=>this.down(e),o);
     vp.addEventListener('pointermove',e=>this.move(e),o);
@@ -894,16 +895,21 @@ class View{
     e.preventDefault(); if(e.pointerType==='mouse'&&e.button!==0) return; try{this.vp.setPointerCapture(e.pointerId)}catch(_){}
     if(e.pointerType==='pen'){
       this.penOn=true; if(this.g){this.g=null;this.touches.clear()}
-      if(this.cb.start(this.doc(e),e)){this.drawId=e.pointerId;this.drawT=performance.now()}
+      if(this.cb.start(this.doc(e),e)){this.drawId=e.pointerId;this.drawT=performance.now();this.drawDist=0;this.drawP=this.local(e)}
       else this.tap={id:e.pointerId,...this.local(e),t:performance.now(),d:this.doc(e)};
       return;
     }
     if(this.penOn&&e.pointerType==='touch') return; // palm
+    if(this.touches.size>=1&&(this.drawId!=null||!this.allowZoom)){
+      // al aan het tekenen: alleen een échte twee-vinger-start (heel snel na de eerste, nauwelijks bewogen) telt; anders is het de hand/palm
+      const fresh=this.drawId!=null&&performance.now()-this.drawT<180&&this.drawDist<14;
+      if(!(fresh&&this.allowZoom)){dbg('genegeerd (hand)');return}
+    }
     this.touches.set(e.pointerId,this.local(e));
     if(this.touches.size===1){
       this.maxT=1;this.gT=performance.now();this.moved=0;
       const mayDraw=!(this.pencilOnly&&e.pointerType==='touch');
-      if(mayDraw&&this.cb.start(this.doc(e),e)){this.drawId=e.pointerId;this.drawT=performance.now();this.tap=null}
+      if(mayDraw&&this.cb.start(this.doc(e),e)){this.drawId=e.pointerId;this.drawT=performance.now();this.drawDist=0;this.drawP=this.local(e);this.tap=null}
       else{this.tap={id:e.pointerId,...this.local(e),t:performance.now(),d:this.doc(e)};this.g={pan:true,last:this.local(e)}}
     }else{
       this.maxT=Math.max(this.maxT||1,this.touches.size);
@@ -915,7 +921,8 @@ class View{
     this.g={pinch:true,d0:Math.hypot(a.x-b.x,a.y-b.y)||1,m0:{x:(a.x+b.x)/2,y:(a.y+b.y)/2},s0:this.s,tx0:this.tx,ty0:this.ty}}
   move(e){
     if(e.pointerId===this.drawId){
-      e.preventDefault(); const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+      e.preventDefault(); if(this.drawP){const l=this.local(e);this.drawDist=Math.max(this.drawDist||0,Math.hypot(l.x-this.drawP.x,l.y-this.drawP.y))}
+      const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
       this.cb.move((evs.length?evs:[e]).map(v=>this.doc(v))); return;
     }
     if(this.tap&&this.tap.id===e.pointerId){const l=this.local(e);if(Math.hypot(l.x-this.tap.x,l.y-this.tap.y)>14)this.tap=null}
@@ -924,13 +931,14 @@ class View{
     const l=this.local(e); const prev=this.touches.get(e.pointerId); this.moved+=Math.hypot(l.x-prev.x,l.y-prev.y); this.touches.set(e.pointerId,l);
     if(!this.g) return;
     if(this.g.pinch){const p=[...this.touches.values()];if(p.length<2)return;const a=p[0],b=p[1],d=Math.hypot(a.x-b.x,a.y-b.y),m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+      if(!this.g.live){if(Math.abs(d/this.g.d0-1)<0.06&&Math.hypot(m.x-this.g.m0.x,m.y-this.g.m0.y)<12)return;this.g.live=true}
       const ns=Math.max(this.fitS*.5,Math.min(this.fitS*12,this.g.s0*d/this.g.d0));const dx=(this.g.m0.x-this.g.tx0)/this.g.s0,dy=(this.g.m0.y-this.g.ty0)/this.g.s0;
       this.s=ns;this.tx=m.x-dx*ns;this.ty=m.y-dy*ns;this.autoFit=false;this.apply();}
     else if(this.g.pan&&this.touches.size===1){this.tx+=l.x-this.g.last.x;this.ty+=l.y-this.g.last.y;this.g.last=l;if(this.moved>6){this.autoFit=false;this.apply()}}
   }
   up(e,cancel){
     dbg((cancel?'cancel ':'up ')+e.pointerType+' #'+e.pointerId+' draw='+this.drawId+' tap='+(this.tap?1:0));
-    if(e.pointerId===this.drawId){this.drawId=null; cancel?this.cb.cancel():this.cb.end(); if(e.pointerType==='pen')this.penOn=false; return}
+    if(e.pointerId===this.drawId){this.drawId=null;this.drawP=null;this.touches.delete(e.pointerId);this.g=null; cancel?this.cb.cancel():this.cb.end(); if(e.pointerType==='pen')this.penOn=false; return}
     if(e.pointerType==='pen'){this.penOn=false; if(this.tap&&this.tap.id===e.pointerId&&!cancel){this.cb.tap&&this.cb.tap(this.tap.d)} this.tap=null; return}
     if(!this.touches.has(e.pointerId)) return;
     this.touches.delete(e.pointerId);
@@ -1025,11 +1033,12 @@ function editProfile(p,isNew){
    <div class="field"><label>Kleur</label><div class="colors">${AVCOL.map(c=>`<button data-c="${c}" style="background:${c}" class="${c===p.color?'on':''}" aria-label="kleur"></button>`).join('')}</div></div>
    <label class="tg"><span>Eenvoudige modus<small>Grote knoppen, minder gereedschap. Fijn voor jonge kinderen.</small></span><span class="switch"><input type="checkbox" id="pfSimple" ${p.simple?'checked':''}><i></i></span></label>
    <label class="tg"><span>Alleen tekenen met Apple Pencil<small>Met je vinger schuif en zoom je dan.</small></span><span class="switch"><input type="checkbox" id="pfPencil" ${p.pencil?'checked':''}><i></i></span></label>
+   <label class="tg"><span>Zoomen met twee vingers<small>Uit = de hand mag op het scherm rusten tijdens het tekenen.</small></span><span class="switch"><input type="checkbox" id="pfZoom" ${p.zoom!==false&&!(p.zoom==null&&p.simple)?'checked':''}><i></i></span></label>
    <label class="tg"><span>Linkshandig<small>Gereedschap aan de rechterkant.</small></span><span class="switch"><input type="checkbox" id="pfLeft" ${p.lefty?'checked':''}><i></i></span></label>
    <div class="mrow">${isNew?'':`<button class="btn warn" id="pfDel">${ic('trash')}Vasthouden om te wissen</button>`}<span class="grow"></span><button class="btn" data-close>Annuleer</button><button class="btn pri" id="pfOk">${ic('check')}Bewaar</button></div>`);
   let col=p.color; m.el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{col=b.dataset.c;m.el.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b))});
   m.el.querySelector('#pfOk').onclick=()=>{const n=m.el.querySelector('#pfName').value.trim();if(!n){m.el.querySelector('#pfName').focus();return}
-    Object.assign(p,{name:n,color:col,simple:m.el.querySelector('#pfSimple').checked,pencil:m.el.querySelector('#pfPencil').checked,lefty:m.el.querySelector('#pfLeft').checked});
+    Object.assign(p,{name:n,color:col,simple:m.el.querySelector('#pfSimple').checked,pencil:m.el.querySelector('#pfPencil').checked,lefty:m.el.querySelector('#pfLeft').checked,zoom:m.el.querySelector('#pfZoom').checked});
     saveProfile(p);m.close();if(APP.screen==='hub')openHub(p.id);else renderHome()};
   const del=m.el.querySelector('#pfDel');
   if(del) holdButton(del,1200,async()=>{LS.set('profiles',profiles().filter(x=>x.id!==p.id));try{for(const r of await DB.list(p.id))await DB.del(r.id)}catch(e){}m.close();renderHome()});
@@ -1187,7 +1196,7 @@ function edSetup(W,H){
 function edBuildUI(){
   const p=APP.profile, simple=p.simple; const tools=simple?T_KID:T_FULL;
   $('#editor').classList.toggle('simple',simple); $('#editor').classList.toggle('lefty',!!p.lefty);
-  ED.view.pencilOnly=!!p.pencil;
+  ED.view.pencilOnly=!!p.pencil;ED.view.allowZoom=p.zoom!=null?p.zoom:!p.simple;
   if(!tools.includes(ED.tool)) ED.tool=tools[0];
   if(ED.hasLine&&!ED.toolPicked) ED.tool='fill';
   $('#toolRail').innerHTML=tools.map(t=>`<button class="tool" data-t="${t}" aria-label="${TOOLS[t].n}">${tico(t)}<span>${TOOLS[t].n}</span></button>`).join('');
@@ -1552,7 +1561,9 @@ window.addEventListener('unhandledrejection',e=>showErr('async: '+((e.reason&&(e
 async function boot(){
   if(location.hash==='#debug'||LS.get('debug',false)){LS.set('debug',true);DBG=[];const d=document.createElement('pre');d.id='dbgPanel';d.style.cssText='position:fixed;right:8px;bottom:90px;z-index:98;background:rgba(0,0,0,.75);color:#9be15d;font:11px/1.3 ui-monospace,monospace;padding:8px;border-radius:10px;pointer-events:none;max-width:60vw;margin:0';document.body.appendChild(d);dbg('debug aan · '+navigator.userAgent.slice(0,90))}
   applyTheme();matchMedia('(prefers-color-scheme: dark)').addEventListener&&matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);
-  document.addEventListener('gesturestart',e=>e.preventDefault());
+  // Safari op iPad: nooit de hele pagina laten zoomen
+  ['gesturestart','gesturechange','gestureend','dblclick'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+  document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1||e.scale&&e.scale!==1)e.preventDefault()},{passive:false});
   // iconen in de html
   $$('[data-ic]').forEach(e=>e.innerHTML=ic(e.dataset.ic));
   await DB.open();
