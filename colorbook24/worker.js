@@ -33,14 +33,19 @@ async function idee(env, text) {
   return { ok: true, nl: String(out.nl || text).slice(0, 80), en: String(out.en || text).slice(0, 200) };
 }
 
-async function maak(env, en, n) {
+async function maak(env, en, n, lvl) {
   en = String(en || '').slice(0, 200);
   if (!en || BLOCK.test(en)) return { ok: false };
-  const prompt = 'Children\'s coloring book page: ' + en + '. Clean bold black outlines on a pure white background, simple cute cartoon style, ' +
-    'large closed shapes, no shading, no gray, no color, no text, no letters, no border, centered, friendly.';
+  const L = [0, 1, 2, 3].includes(+lvl) ? +lvl : 2;
+  const style = {
+    1: 'for ages 4-6: very simple cute cartoon, very thick bold outlines, few large shapes, lots of white space',
+    2: 'for ages 7-10: detailed fun cartoon scene with a background, bold clean outlines, many medium sized closed areas',
+    3: 'for teens and adults: highly detailed intricate illustration with a full background scene, fine clean outlines, many small closed areas and decorative patterns'
+  }[L];
+  const prompt = 'Coloring book page: ' + en + '. Pure black and white line art, ' + style + '. Clean black outlines on a pure white background, no shading, no gray, no color, no text, no letters, no border. All shapes closed.';
   const jobs = [], errs = [];
   for (let i = 0; i < Math.min(3, n || 3); i++) {
-    jobs.push(env.AI.run(MODEL_IMG, { prompt: prompt + ' Variation ' + (i + 1) + '.', steps: 6 }).then(r => r && r.image).catch(e => { errs.push(String(e && e.message || e)); return null; }));
+    jobs.push(env.AI.run(MODEL_IMG, { prompt: prompt + ' Variation ' + (i + 1) + '.', steps: L === 3 ? 8 : 6 }).then(r => r && r.image).catch(e => { errs.push(String(e && e.message || e)); return null; }));
   }
   const imgs = (await Promise.all(jobs)).filter(Boolean);
   return { ok: imgs.length > 0, images: imgs, fout: imgs.length ? undefined : errs.slice(0, 2) };
@@ -56,7 +61,7 @@ export default {
       try {
         if (url.pathname === '/api/check') return json({ ai: !!env.AI });
         if (url.pathname === '/api/idee') return json(await idee(env, body.text));
-        if (url.pathname === '/api/maak') return json(await maak(env, body.en, body.n));
+        if (url.pathname === '/api/maak') return json(await maak(env, body.en, body.n, body.level));
       } catch (e) { return json({ ok: false, fout: String(e && e.message || e) }, 500); }
       return json({ ok: false }, 404);
     }

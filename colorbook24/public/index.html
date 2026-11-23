@@ -293,7 +293,7 @@ html:not(.m){--acc:#8b5cf6;--sh:none}
 .m .modal{border-radius:28px}
 .m .sw{border:3px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .m .nsw{border-radius:16px}
-.m .stage{box-shadow:0 20px 50px rgba(10,10,40,.18)}
+.m .stage{box-shadow:0 2px 10px rgba(10,10,40,.14)}
 .m .tool{color:var(--mute)}.m .tool.on{background:var(--soft);color:var(--acc)}
 .m .rail{border-radius:22px}.m .panel{border-radius:20px}
 .m input[type=range]::-webkit-slider-runnable-track{border:0;background:var(--soft)}
@@ -340,6 +340,8 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
 #side .lg{display:flex;align-items:center;gap:10px}#side .lg .logo{width:34px;height:34px;border-radius:10px;flex:none}
 @media(max-width:860px){#side .lg .lgw{display:none}#side .lg{justify-content:center}}
 #side .lg .lgw{color:var(--ink)}#side .lg .lgw span{color:var(--acc)}
+
+.stage{will-change:transform;box-shadow:0 0 0 2px var(--edge),0 3px 10px rgba(20,16,40,.18)}
 </style>
 </head>
 <body>
@@ -362,6 +364,7 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
     <div class="txt"><h1 id="homeTitle">Wie gaat er tekenen?</h1><p id="homeSub">Vrij tekenen, kleurplaten en kleuren op nummer. Ook zonder internet.</p></div>
   </div>
   <div class="pgrid" id="profiles"></div>
+  <div style="margin:22px 0 30px"><button class="btn" id="impProf"><span data-ic="down"></span>Importeer profiel</button></div>
 </div></div></section>
 
 <!-- HUB -->
@@ -395,7 +398,7 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
 
 <!-- GALERIJ -->
 <section class="screen" id="gallery"><div class="wrap" style="display:flex;flex-direction:column;flex:1;min-height:0">
-  <div class="bar"><button class="ib" id="galBack" aria-label="Terug"><span data-ic="back"></span></button><h2>Mijn galerij</h2></div>
+  <div class="bar"><button class="ib" id="galBack" aria-label="Terug"><span data-ic="back"></span></button><h2>Mijn galerij</h2><span class="grow"></span><button class="btn" id="galTrash"><span data-ic="trash"></span>Prullenbak</button></div>
   <div class="scroll-y"><div class="lgrid" id="galGrid"></div></div>
 </div></section>
 
@@ -713,7 +716,26 @@ function mandalaColorDraw(seed, level){
 }
 
 /* ---------- platen-catalogus ---------- */
-const CATS = ['Alles','Mijn platen','Stoer',"Auto's",'Sport','Dansen',"Dino's",'Prinsessen','Dieren','Ruimte','Oceaan','Feest','Fantasie','Natuur','Mandala','Patronen'];
+const CATS = ['Alles','Mijn platen','Stoer',"Auto's",'Sport','Dansen',"Dino's",'Prinsessen','Dieren','Ruimte','Oceaan','Feest','Fantasie','Natuur','Mozaïek','Patronen'];
+
+/* ---------- mozaïek-generator (kleurplaat) ---------- */
+function mosaicSVG(seed, level=2){
+  const R=rng(seed), cols=[0,9,15,24][level], rows=Math.round(cols*0.72), m=24, W=1000, H=750, cw=(W-2*m)/cols, chh=(H-2*m)/rows, j=level===1?0.22:0.3;
+  const P=[];for(let y=0;y<=rows;y++){P.push([]);for(let x=0;x<=cols;x++){const edgeX=x===0||x===cols,edgeY=y===0||y===rows;
+    P[y].push([m+x*cw+(edgeX?0:(R()-.5)*2*j*cw), m+y*chh+(edgeY?0:(R()-.5)*2*j*chh)])}}
+  let o='';
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const a=P[y][x],b=P[y][x+1],c=P[y+1][x+1],d=P[y+1][x];
+    // af en toe een tegel diagonaal splitsen voor afwisseling
+    if(R()<(level===1?0.15:0.3)){o+=`<path d="M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${c[0].toFixed(1)} ${c[1].toFixed(1)}" fill="none"/>`}
+    o+=`<path d="M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}L${c[0].toFixed(1)} ${c[1].toFixed(1)}L${d[0].toFixed(1)} ${d[1].toFixed(1)}Z"/>`}
+  const shapes=['heart','star','butterfly','balloon','paw','bolt','moon','diamond','leaf','smile'];
+  const sid=shapes[Math.floor(R()*shapes.length)],st=STICKERS.find(x=>x.id===sid), size=level===1?560:600, sx=(W-size)/2, sy=(H-size)/2+10;
+  let sh='';for(const [f,d] of st.d) sh+=`<path d="${d}" fill="none" fill-rule="evenodd"/>`;
+  const sw=level===3?3:level===2?4:6;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect width="100%" height="100%" fill="#fff"/>
+  <g fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linejoin="round">${o}</g>
+  <g transform="translate(${sx} ${sy}) scale(${size/100})" stroke="${INK}" stroke-width="${(sw*2.6)/(size/100)}" stroke-linejoin="round" stroke-linecap="round">${sh}</g></svg>`;
+}
 
 /* ===== Colorbook24 – engine ===== */
 
@@ -977,7 +999,7 @@ function dominantColors(c, frac=0.002){
 class View{
   constructor(vp,stage,cb){
     this.vp=vp;this.stage=stage;this.cb=cb;this.s=1;this.tx=0;this.ty=0;this.w=1;this.h=1;
-    this.touches=new Map();this.drawId=null;this.allowZoom=true;this.penOn=false;this.g=null;this.tap=null;this.pencilOnly=false;
+    this.touches=new Map();this.drawId=null;this.allowZoom=true;this.pend=[];this.raf=0;this.penOn=false;this.g=null;this.tap=null;this.pencilOnly=false;
     const o={passive:false};
     vp.addEventListener('pointerdown',e=>this.down(e),o);
     vp.addEventListener('pointermove',e=>this.move(e),o);
@@ -1024,17 +1046,19 @@ class View{
       else{this.tap={id:e.pointerId,...this.local(e),t:performance.now(),d:this.doc(e)};this.g={pan:true,last:this.local(e)}}
     }else{
       this.maxT=Math.max(this.maxT||1,this.touches.size);
-      if(this.drawId!=null){ if(performance.now()-this.drawT<350) this.cb.cancel(); else this.cb.end(); this.drawId=null }
+      if(this.drawId!=null){ this.pend=[]; if(this.raf){cancelAnimationFrame(this.raf);this.raf=0} if(performance.now()-this.drawT<350) this.cb.cancel(); else this.cb.end(); this.drawId=null }
       this.tap=null; this.startPinch();
     }
   }
+  flush(){this.raf=0;if(this.pend.length){const p=this.pend;this.pend=[];this.cb.move(p)}}
   startPinch(){dbg('pinch start');const p=[...this.touches.values()];if(p.length<2)return;const a=p[0],b=p[1];
     this.g={pinch:true,d0:Math.hypot(a.x-b.x,a.y-b.y)||1,m0:{x:(a.x+b.x)/2,y:(a.y+b.y)/2},s0:this.s,tx0:this.tx,ty0:this.ty}}
   move(e){
     if(e.pointerId===this.drawId){
       e.preventDefault(); if(this.drawP){const l=this.local(e);this.drawDist=Math.max(this.drawDist||0,Math.hypot(l.x-this.drawP.x,l.y-this.drawP.y))}
       const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
-      this.cb.move((evs.length?evs:[e]).map(v=>this.doc(v))); return;
+      for(const v of (evs.length?evs:[e])) this.pend.push(this.doc(v));
+      if(!this.raf) this.raf=requestAnimationFrame(()=>this.flush()); return;
     }
     if(this.tap&&this.tap.id===e.pointerId){const l=this.local(e);if(Math.hypot(l.x-this.tap.x,l.y-this.tap.y)>14)this.tap=null}
     if(e.pointerType==='pen'&&this.cb.hover) return;
@@ -1049,7 +1073,7 @@ class View{
   }
   up(e,cancel){
     dbg((cancel?'cancel ':'up ')+e.pointerType+' #'+e.pointerId+' draw='+this.drawId+' tap='+(this.tap?1:0));
-    if(e.pointerId===this.drawId){this.drawId=null;this.drawP=null;this.touches.delete(e.pointerId);this.g=null; cancel?this.cb.cancel():this.cb.end(); if(e.pointerType==='pen')this.penOn=false; return}
+    if(e.pointerId===this.drawId){if(this.raf){cancelAnimationFrame(this.raf);this.raf=0}if(!cancel)this.flush();else this.pend=[];this.drawId=null;this.drawP=null;this.touches.delete(e.pointerId);this.g=null; cancel?this.cb.cancel():this.cb.end(); if(e.pointerType==='pen')this.penOn=false; return}
     if(e.pointerType==='pen'){this.penOn=false; if(this.tap&&this.tap.id===e.pointerId&&!cancel){this.cb.tap&&this.cb.tap(this.tap.d)} this.tap=null; return}
     if(!this.touches.has(e.pointerId)) return;
     this.touches.delete(e.pointerId);
@@ -1086,6 +1110,23 @@ function photoToRegions(img, detail=2, outMax=1600){
   ox.fillStyle='#fff';ox.fillRect(0,0,OW,OH);ox.imageSmoothingEnabled=true;ox.imageSmoothingQuality='high';ox.drawImage(lc,0,0,OW,OH);
   ox.globalCompositeOperation='multiply';for(const [dx,dy] of [[1,0],[0,1],[1,1],[-1,0],[0,-1]])ox.drawImage(oc,dx,dy);ox.globalCompositeOperation='source-over';
   lc.width=lc.height=0;return oc;
+}
+
+/* ---------- mozaïek op nummer: vierkante tegels ---------- */
+function buildMosaic(src, cols, k, seed){
+  const W=src.width,H=src.height,cs=W/cols,rows=Math.max(1,Math.round(H/cs)),ch=H/rows,N=cols*rows,px=ctx2(src).getImageData(0,0,W,H).data;
+  const cells=new Uint8ClampedArray(N*4);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){let sr=0,sg=0,sb=0,n=0;const x0=Math.floor(c*cs),x1=Math.floor((c+1)*cs),y0=Math.floor(r*ch),y1=Math.floor((r+1)*ch);
+    for(let y=y0+1;y<y1-1;y+=2)for(let x=x0+1;x<x1-1;x+=2){const i=(y*W+x)*4;sr+=px[i];sg+=px[i+1];sb+=px[i+2];n++}
+    const j=(r*cols+c)*4;cells[j]=sr/n;cells[j+1]=sg/n;cells[j+2]=sb/n;cells[j+3]=255}
+  const pal=quantKMeans(cells,N,Math.min(k,N),seed||1),K=pal.length,cc=new Uint8Array(N);
+  for(let i=0;i<N;i++){let bi=0,bd=1e9;for(let q=0;q<K;q++){const p=pal[q],d=(cells[i*4]-p[0])**2+(cells[i*4+1]-p[1])**2+(cells[i*4+2]-p[2])**2;if(d<bd){bd=d;bi=q}}cc[i]=bi}
+  const used=[...new Set(cc)].sort((a,b)=>{const l=c=>.299*pal[c][0]+.587*pal[c][1]+.114*pal[c][2];return l(b)-l(a)}),cmap=new Map(used.map((c,i)=>[c,i]));
+  const lab=new Int32Array(W*H),regions=[];
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const id=r*cols+c,x0=Math.floor(c*cs),x1=Math.floor((c+1)*cs)-1,y0=Math.floor(r*ch),y1=Math.floor((r+1)*ch)-1;
+    regions.push({c:cmap.get(cc[id]),area:(x1-x0+1)*(y1-y0+1),minx:x0,maxx:x1,miny:y0,maxy:y1,lx:(x0+x1)/2,ly:(y0+y1)/2,dist:Math.min(cs,ch)*0.42});
+    for(let y=y0;y<=y1;y++)lab.fill(id,y*W+x0,y*W+x1+1)}
+  return {W,H,lab,regions,palette:used.map(c=>rgbHex(...pal[c]))};
 }
 
 /* ===== Colorbook24 – app ===== */
@@ -1160,6 +1201,7 @@ function renderHome(){
   $('#profiles').innerHTML=ps.map(p=>`<button class="pcard" data-p="${p.id}">${avatar(p)}<b>${esc(p.name)}</b><small>${p.simple?'Eenvoudig':'Alle gereedschap'}</small></button>`).join('')+
     `<button class="pcard add${ps.length?'':' first'}" id="addProf"><span class="av">+</span><b>${ps.length?'Nieuw profiel':'Maak je profiel'}</b><small>Voor een kind of volwassene</small></button>`;
   $$('#profiles [data-p]').forEach(b=>b.onclick=()=>openHub(b.dataset.p));
+  $('#impProf').onclick=importProfile;
   $('#addProf').onclick=()=>editProfile({id:uid(),name:'',color:AVCOL[ps.length%AVCOL.length],simple:false},true);
   show('home');
 }
@@ -1173,14 +1215,66 @@ function editProfile(p,isNew){
    <label class="tg"><span>Zoomen met twee vingers<small>Uit = de hand mag op het scherm rusten tijdens het tekenen.</small></span><span class="switch"><input type="checkbox" id="pfZoom" ${p.zoom!==false&&!(p.zoom==null&&p.simple)?'checked':''}><i></i></span></label>
    <label class="tg"><span>Bedenk zelf (AI)<small>Eigen kleurplaten laten maken. Alleen de tekst van je idee gaat naar buiten, geen naam.</small></span><span class="switch"><input type="checkbox" id="pfAi" ${p.ai!==false?'checked':''}><i></i></span></label>
    <label class="tg"><span>Linkshandig<small>Gereedschap aan de rechterkant.</small></span><span class="switch"><input type="checkbox" id="pfLeft" ${p.lefty?'checked':''}><i></i></span></label>
+   ${isNew?'':`<div class="mrow" style="justify-content:flex-start"><button class="btn" id="pfExp">${ic('share')}Exporteer profiel</button></div>`}
    <div class="mrow">${isNew?'':`<button class="btn warn" id="pfDel">${ic('trash')}Vasthouden om te wissen</button>`}<span class="grow"></span><button class="btn" data-close>Annuleer</button><button class="btn pri" id="pfOk">${ic('check')}Bewaar</button></div>`);
   let des=designOf(p); m.el.querySelectorAll('#pfDesign button').forEach(b=>b.onclick=()=>{des=b.dataset.d;m.el.querySelectorAll('#pfDesign button').forEach(x=>x.classList.toggle('on',x===b))});
   let col=p.color; m.el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{col=b.dataset.c;m.el.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b))});
   m.el.querySelector('#pfOk').onclick=()=>{const n=m.el.querySelector('#pfName').value.trim();if(!n){m.el.querySelector('#pfName').focus();return}
     Object.assign(p,{name:n,color:col,simple:m.el.querySelector('#pfSimple').checked,pencil:m.el.querySelector('#pfPencil').checked,lefty:m.el.querySelector('#pfLeft').checked,zoom:m.el.querySelector('#pfZoom').checked,design:des,ai:m.el.querySelector('#pfAi').checked});
     saveProfile(p);m.close();if(APP.screen==='hub'||isNew)openHub(p.id);else renderHome()};
+  const ex=m.el.querySelector('#pfExp');if(ex)ex.onclick=()=>{m.close();exportProfile(p)};
   const del=m.el.querySelector('#pfDel');
   if(del) holdButton(del,1200,async()=>{LS.set('profiles',profiles().filter(x=>x.id!==p.id));try{for(const r of await DB.list(p.id))await DB.del(r.id)}catch(e){}m.close();renderHome()});
+}
+
+
+/* ---------- prullenbak ---------- */
+const TRASH_DAYS=30;
+async function liveRecs(pid){return (await DB.list(pid)).filter(r=>!r.deleted)}
+async function trashRec(id){const r=await DB.get(id);if(!r)return;r.deleted=Date.now();await DB.put(r)}
+async function restoreRec(id){const r=await DB.get(id);if(!r)return;delete r.deleted;r.updated=Date.now();await DB.put(r)}
+async function purgeTrash(){try{for(const p of profiles())for(const r of await DB.list(p.id))if(r.deleted&&Date.now()-r.deleted>TRASH_DAYS*864e5)await DB.del(r.id)}catch(e){}}
+async function openTrash(){
+  let recs=[];try{recs=(await DB.list(APP.profile.id)).filter(r=>r.deleted).sort((a,b)=>b.deleted-a.deleted)}catch(e){}
+  const left=r=>Math.max(0,TRASH_DAYS-Math.floor((Date.now()-r.deleted)/864e5));
+  const m=modal(`<h3>Prullenbak</h3><p>Weggegooide werkjes en platen blijven ${TRASH_DAYS} dagen bewaard. Daarna worden ze echt verwijderd.</p>
+    ${recs.length?`<div class="lgrid" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${recs.map(r=>`<div class="lcard"><div class="th"><img alt="" data-tt="${r.id}"></div><div class="cap" style="flex-direction:column;align-items:stretch;gap:6px"><b>${esc(r.title)}</b><small style="color:var(--mute)">Nog ${left(r)} dagen</small><button class="btn" data-res="${r.id}">Terugzetten</button><button class="btn warn" data-kill="${r.id}">Vasthouden: echt weg</button></div></div>`).join('')}</div>`:`<div class="empty"><b>Leeg</b>Hier komt wat je weggooit.</div>`}
+    <div class="mrow">${recs.length?`<button class="btn warn" id="trAll">Vasthouden: alles leeg</button>`:''}<span class="grow"></span><button class="btn pri" data-close>Klaar</button></div>`,{wide:true});
+  recs.forEach(r=>{const im=m.el.querySelector(`[data-tt="${r.id}"]`);if(im&&(r.thumb||r.img))im.src=URL.createObjectURL(r.thumb||r.img)});
+  m.el.querySelectorAll('[data-res]').forEach(b=>b.onclick=async()=>{await restoreRec(b.dataset.res);m.close();toast('Teruggezet');refreshAfterTrash()});
+  m.el.querySelectorAll('[data-kill]').forEach(b=>holdButton(b,1000,async()=>{await DB.del(b.dataset.kill);m.close();openTrash()}));
+  const all=m.el.querySelector('#trAll');if(all)holdButton(all,1500,async()=>{for(const r of recs)await DB.del(r.id);m.close();openTrash()});
+}
+function refreshAfterTrash(){if(APP.screen==='gallery')openGallery();else if(APP.screen==='library')openLibrary(LIB.kind);else if(APP.screen==='hub')openHub(APP.profile.id)}
+
+/* ---------- profiel exporteren / importeren ---------- */
+const b2d=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)});
+async function d2b(u){return (await fetch(u)).blob()}
+async function packVal(v){if(v instanceof Blob)return{__b:await b2d(v)};if(Array.isArray(v))return Promise.all(v.map(packVal));if(v&&typeof v==='object'){const o={};for(const k in v)o[k]=await packVal(v[k]);return o}return v}
+async function unpackVal(v){if(v&&v.__b)return d2b(v.__b);if(Array.isArray(v))return Promise.all(v.map(unpackVal));if(v&&typeof v==='object'){const o={};for(const k in v)o[k]=await unpackVal(v[k]);return o}return v}
+async function exportProfile(p){
+  const b=busy('Profiel inpakken…');
+  try{
+    const recs=await liveRecs(p.id);const data={app:'colorbook24',v:1,date:Date.now(),profile:p,custom:LS.get('custom.'+p.id,[]),records:await packVal(recs)};
+    const blob=new Blob([JSON.stringify(data)],{type:'application/json'}),name=(p.name||'profiel').replace(/[^\w\- ]+/g,'').trim()+'.colorbook';
+    b.close();
+    const file=typeof File!=='undefined'?new File([blob],name,{type:'application/json'}):null;
+    const url=URL.createObjectURL(blob),mb=(blob.size/1048576).toFixed(1);
+    const canShare=!!(file&&navigator.canShare&&navigator.canShare({files:[file]}));
+    const m=modal(`<h3>Profiel exporteren</h3><p>${esc(p.name)}: ${recs.filter(r=>r.kind!=='page').length} werkjes, ${recs.filter(r=>r.kind==='page').length} eigen platen (${mb} MB). Bewaar het bestand of stuur het via AirDrop naar een andere iPad. Daar kies je "Importeer profiel".</p>
+      <div class="mrow"><button class="btn" data-close>Sluit</button><a class="btn" href="${url}" download="${esc(name)}">${ic('down')}Download</a>${canShare?`<button class="btn pri" id="exSh">${ic('share')}Delen / AirDrop</button>`:''}</div>`);
+    const sh=m.el.querySelector('#exSh');if(sh)sh.onclick=async()=>{try{await navigator.share({files:[file],title:name})}catch(e){}};
+  }catch(e){b.close();toast('Exporteren lukte niet')}
+}
+function importProfile(){
+  const i=document.createElement('input');i.type='file';
+  i.onchange=async()=>{const f=i.files[0];if(!f)return;const b=busy('Profiel uitpakken…');
+    try{const data=JSON.parse(await f.text());if(data.app!=='colorbook24')throw 0;
+      const ps=profiles();const np=Object.assign({},data.profile,{id:uid()});let n=np.name,k=2;while(ps.some(x=>x.name===n))n=np.name+' ('+(k++)+')';np.name=n;
+      const recs=await unpackVal(data.records||[]);for(const r of recs){r.id=uid();r.profile=np.id;await DB.put(r)}
+      if(data.custom)LS.set('custom.'+np.id,data.custom);saveProfile(np);b.close();toast(np.name+' is toegevoegd');renderHome();
+    }catch(e){b.close();toast('Dit bestand kan ik niet lezen')}};
+  i.click();
 }
 
 /* ---------- hub ---------- */
@@ -1206,7 +1300,7 @@ async function openHub(pid){
   const tp=todayPage(); $('#today').innerHTML=`<img alt="" src="${tp.thumb}"><div><b>Kleurplaat van vandaag</b><p style="margin:4px 0 12px;color:var(--mute)">${esc(tp.title)}. Elke dag een nieuwe.</p><button class="btn pri" id="todayGo">Inkleuren</button></div>`;
   $('#todayGo').onclick=()=>openColorPage(tp);
   // verder werken
-  let recs=[];try{recs=(await DB.list(p.id)).filter(r=>r.kind!=='page').sort((a,b)=>b.updated-a.updated).slice(0,8)}catch(e){}
+  let recs=[];try{recs=(await liveRecs(p.id)).filter(r=>r.kind!=='page').sort((a,b)=>b.updated-a.updated).slice(0,8)}catch(e){}
   $('#recentWrap').classList.toggle('hide',!recs.length);
   $('#recent').innerHTML=recs.map(r=>`<button class="lcard" style="width:200px" data-id="${r.id}"><div class="th"><img alt="" data-thumb="${r.id}"></div><div class="cap"><b>${esc(r.title)}</b></div></button>`).join('');
   recs.forEach(r=>{const im=$(`[data-thumb="${r.id}"]`);if(im&&r.thumb)im.src=URL.createObjectURL(r.thumb)});
@@ -1226,9 +1320,9 @@ const mcard=(img,t,sub,attrs,cover)=>`<button class="mc" ${attrs}><div class="mi
 const LVLN=['','Makkelijk','Midden','Uitdaging'];
 async function renderModernHub(p){
   await loadMyPages();
-  let recs=[];try{recs=(await DB.list(p.id)).filter(r=>r.kind!=='page').sort((a,b)=>b.updated-a.updated).slice(0,12)}catch(e){}
+  let recs=[];try{recs=(await liveRecs(p.id)).filter(r=>r.kind!=='page').sort((a,b)=>b.updated-a.updated).slice(0,12)}catch(e){}
   const all=allColorPages(), tp=todayPage();
-  const order=['Mijn platen','Stoer',"Auto's",'Sport','Dansen',"Dino's",'Dieren','Ruimte','Oceaan','Fantasie','Prinsessen','Feest','Natuur','Patronen'];
+  const order=['Mijn platen','Stoer',"Auto's",'Sport','Dansen',"Dino's",'Dieren','Ruimte','Oceaan','Fantasie','Prinsessen','Feest','Natuur','Mozaïek','Patronen'];
   const rows=order.map(c=>[c,all.filter(x=>x.cat===c).sort((a,b)=>b.level-a.level)]).filter(([c,l])=>l.length);
   const H=$('#hubModern');
   H.innerHTML=`<div class="mtop"><h1>${greet()}, ${esc(p.name)}</h1><input type="search" class="srch" id="hubSearch" placeholder="Zoek een kleurplaat…" aria-label="Zoeken"></div>
@@ -1250,6 +1344,7 @@ function allColorPages(){
   const out=[...(APP.myPages||[])];
   for(const a of APP.aiPages) out.push({...a,thumb:a.file,src:a.file});
   for(const h of HAND){const svg=h.svg();out.push({...h,svg:()=>svg,thumb:svgUrl(svg)})}
+  for(const [sd,l] of [[7,1],[19,1],[23,2],[31,2],[47,3],[53,3]]){const svg=mosaicSVG(sd,l);out.push({id:`z-${sd}-${l}`,title:'Mozaïek',cat:'Mozaïek',level:l,svg:()=>svg,thumb:svgUrl(svg),gen:'mosaic'})}
   const ps=[[11,1],[22,2],[33,2],[44,3],[55,3]];
   for(const [s,l] of ps){const svg=patternSVG(s,l);out.push({id:`p-${s}-${l}`,title:'Tegelpatroon',cat:'Patronen',level:l,svg:()=>svg,thumb:svgUrl(svg),gen:'pattern'})}
   return out;
@@ -1274,26 +1369,33 @@ function renderLibrary(){
     if(simple) list.sort((a,b)=>a.level-b.level);
     if(APP.profile.ai!==false)html+=`<button class="lcard spec ai" id="aiCard"><div class="th">${micSvg(64)}</div><div class="cap"><b>Bedenk zelf</b></div></button>`;
     html+=`<button class="lcard spec" id="fromPhoto"><div class="th">${ic('photo')}</div><div class="cap"><b>Van een foto</b></div></button>`;
+    if(LIB.cat==='Alles'||LIB.cat==='Mozaïek') html+=`<button class="lcard spec" data-new="mosaic"><div class="th">${ic('grid')}</div><div class="cap"><b>Nieuw mozaïek</b></div></button>`;
     if(LIB.cat==='Alles'||LIB.cat==='Patronen') html+=`<button class="lcard spec" data-new="pattern"><div class="th">${ic('grid')}</div><div class="cap"><b>Nieuw patroon</b></div></button>`;
-    html+=list.map(p=>`<button class="lcard" data-id="${p.id}"><div class="th"><img loading="lazy" alt="" src="${p.thumb}"></div><div class="cap"><b>${esc(p.title)}</b>${lvlDots(p.level)}</div></button>`).join('');
+    html+=list.map(p=>`<div class="lcard" data-id="${p.id}" role="button" tabindex="0"><div class="th"><img loading="lazy" alt="" src="${p.thumb}"></div>${p.mine?`<button class="more" data-trash="${p.id}" aria-label="Naar prullenbak">${ic('trash')}</button>`:''}<div class="cap"><b>${esc(p.title)}</b>${p.mine?'<small style="color:var(--mute)">Zelf bedacht</small>':lvlDots(p.level)}</div></div>`).join('');
     $('#libGrid').innerHTML=html;
     const map=new Map(list.map(p=>[p.id,p]));
-    $$('#libGrid [data-id]').forEach(b=>b.onclick=()=>openColorPage(map.get(b.dataset.id)));
-    $$('#libGrid [data-new]').forEach(b=>b.onclick=()=>{const s=(Math.random()*1e9)|0,l=LIB.lvl||(simple?1:2),g=b.dataset.new;const svg=g==='mandala'?mandalaSVG(s,l):patternSVG(s,l);
-      openColorPage({id:g[0]+'-'+s+'-'+l,title:g==='mandala'?'Mandala':'Tegelpatroon',level:l,svg:()=>svg})});
+    $$('#libGrid [data-id]').forEach(b=>b.onclick=e=>{if(e.target.closest('[data-trash]'))return;openColorPage(map.get(b.dataset.id))});
+    $$('#libGrid [data-trash]').forEach(b=>b.onclick=async e=>{e.stopPropagation();await trashRec(b.dataset.trash);toast('In de prullenbak (30 dagen)');await loadMyPages();renderLibrary()});
+    $$('#libGrid [data-new]').forEach(b=>b.onclick=()=>{const s=(Math.random()*1e9)|0,l=LIB.lvl||(simple?1:2),g=b.dataset.new;const svg=g==='mosaic'?mosaicSVG(s,l):patternSVG(s,l);
+      openColorPage({id:g[0]+'-'+s+'-'+l,title:g==='mosaic'?'Mozaïek':'Tegelpatroon',level:l,svg:()=>svg})});
     $('#fromPhoto').onclick=()=>pickPhoto(photoToColoring);if($('#aiCard'))$('#aiCard').onclick=aiStart;
   }else{
     const items=[...SCENES.map(s=>({t:'scene',id:s.id,title:s.title,level:s.level,thumb:sceneThumb(s)})),
-]
+      ...SCENES.map((s,i)=>({t:'mosaic',id:s.id,title:'Mozaïek: '+s.title,level:1+(i%3),thumb:mosaicThumb(s)}))]
       .filter(x=>!LIB.lvl||x.level===LIB.lvl);
     html+=`<button class="lcard spec" id="fromPhoto"><div class="th">${ic('photo')}</div><div class="cap"><b>Van een foto</b></div></button>`;
+    html+=`<button class="lcard spec" id="fromPhotoMz"><div class="th">${ic('grid')}</div><div class="cap"><b>Foto als mozaïek</b></div></button>`;
     html+=items.map((x,i)=>`<button class="lcard" data-i="${i}"><div class="th${x.t==='scene'?' cover':''}"><img loading="lazy" alt="" src="${x.thumb}"></div><div class="cap"><b>${esc(x.title)}</b>${lvlDots(x.level)}</div></button>`).join('');
     $('#libGrid').innerHTML=html;
-    $$('#libGrid [data-i]').forEach(b=>b.onclick=()=>{const x=items[+b.dataset.i];openNumbers({src:x.t==='scene'?{t:'scene',id:x.id}:{t:'mandala',seed:x.seed,level:x.level},title:x.title})});
-    $('#fromPhoto').onclick=()=>pickPhoto(photoToNumbers);
+    $$('#libGrid [data-i]').forEach(b=>b.onclick=()=>{const x=items[+b.dataset.i];openNumbers({src:x.t==='mosaic'?{t:'mosaic',scene:x.id,level:x.level}:{t:'scene',id:x.id},title:x.title})});
+    $('#fromPhoto').onclick=()=>pickPhoto(photoToNumbers);$('#fromPhotoMz').onclick=()=>pickPhoto((img)=>photoToNumbers(img,null,true));
   }
 }
 const THC={};
+function mosaicThumb(s){const k='mz'+s.id;if(THC[k])return THC[k];const c=mk(400,300),x=c.getContext('2d');x.scale(.4,.4);s.draw(x);
+  const t=mk(20,15);t.getContext('2d').drawImage(c,0,0,20,15);x.setTransform(1,0,0,1,0,0);x.imageSmoothingEnabled=false;x.drawImage(t,0,0,400,300);
+  x.strokeStyle='rgba(255,255,255,.7)';x.lineWidth=1.5;for(let i=0;i<=20;i++){x.beginPath();x.moveTo(i*20,0);x.lineTo(i*20,300);x.stroke()}for(let j=0;j<=15;j++){x.beginPath();x.moveTo(0,j*20);x.lineTo(400,j*20);x.stroke()}
+  return THC[k]=c.toDataURL('image/jpeg',.85)}
 function sceneThumb(s){if(THC[s.id])return THC[s.id];const c=mk(400,300),x=c.getContext('2d');x.scale(.4,.4);s.draw(x);
   // thumbnail als 'nog niet ingekleurd' – alleen lichte versie
   x.setTransform(1,0,0,1,0,0);x.fillStyle='rgba(255,255,255,.55)';x.fillRect(0,0,400,300);return THC[s.id]=c.toDataURL('image/jpeg',.8)}
@@ -1302,7 +1404,7 @@ function pickPhoto(cb){const i=document.createElement('input');i.type='file';i.a
 /* ---------- galerij ---------- */
 async function openGallery(){
   show('gallery'); $('#galGrid').innerHTML='';
-  let recs=[];try{recs=(await DB.list(APP.profile.id)).filter(r=>r.kind!=='page').sort((a,b)=>b.updated-a.updated)}catch(e){}
+  let recs=[];try{recs=(await liveRecs(APP.profile.id)).filter(r=>r.kind!=='page').sort((a,b)=>b.updated-a.updated)}catch(e){}
   if(!DB.ok) toast('Let op: opslaan werkt in deze voorbeeldweergave niet blijvend',2600);
   if(!recs.length){$('#galGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><b>Nog leeg</b>Alles wat je tekent of inkleurt komt hier vanzelf te staan.</div>`;return}
   const lab={draw:'Tekening',color:'Kleurplaat',number:'Op nummer'};
@@ -1310,11 +1412,11 @@ async function openGallery(){
   recs.forEach(r=>{const im=$(`#galGrid [data-thumb="${r.id}"]`);if(im&&r.thumb)im.src=URL.createObjectURL(r.thumb)});
   $$('#galGrid [data-id]').forEach(b=>b.onclick=e=>{if(e.target.closest('[data-m]'))return;openRecord(b.dataset.id)});
   $$('#galGrid [data-m]').forEach(b=>b.onclick=()=>{const r=recs.find(x=>x.id===b.dataset.m);
-    const m=modal(`<h3>${esc(r.title)}</h3><img class="prev" alt="" id="gmPrev"><div class="mrow"><button class="btn warn" id="gmDel">${ic('trash')}Vasthouden om te wissen</button><span class="grow"></span><button class="btn" id="gmShare">${ic('share')}Bewaren of delen</button><button class="btn pri" id="gmOpen">Openen</button></div>`);
+    const m=modal(`<h3>${esc(r.title)}</h3><img class="prev" alt="" id="gmPrev"><div class="mrow"><button class="btn warn" id="gmDel">${ic('trash')}Naar prullenbak</button><span class="grow"></span><button class="btn" id="gmShare">${ic('share')}Bewaren of delen</button><button class="btn pri" id="gmOpen">Openen</button></div>`);
     m.el.querySelector('#gmPrev').src=URL.createObjectURL(r.thumb);
     m.el.querySelector('#gmOpen').onclick=()=>{m.close();openRecord(r.id)};
     m.el.querySelector('#gmShare').onclick=async()=>{m.close();const full=await DB.get(r.id);exportRecord(full)};
-    holdButton(m.el.querySelector('#gmDel'),1200,async()=>{await DB.del(r.id);m.close();openGallery()});
+    m.el.querySelector('#gmDel').onclick=async()=>{await trashRec(r.id);m.close();toast('In de prullenbak (30 dagen)');openGallery()};
   });
 }
 async function openRecord(id){const r=await DB.get(id);if(!r)return;if(r.kind==='number')openNumbers({rec:r});else openDrawRecord(r)}
@@ -1455,10 +1557,10 @@ function strokeStart(p){
   ED.sx.clearRect(0,0,ED.W,ED.H);
   const st=ED.stroke.style;st.opacity=t.k==='erase'?1:S.alpha;
   S.pat=t.grain?grainPattern(t.grain,ED.color):null;
-  seg(p,p,p,true);return true;
+  S.fbb=null;seg(p,p,p,true);flushMask();return true;
 }
-function strokeMove(ps){if(!S.on)return;for(const p of ps){const d=Math.hypot(p.x-S.last.x,p.y-S.last.y);if(d<.8)continue;const mid={x:(S.last.x+p.x)/2,y:(S.last.y+p.y)/2};seg(S.mid,S.last,mid,false,p.p);S.dist+=d;S.mid=mid;S.last=p}}
-function strokeEnd(){if(!S.on)return;seg(S.mid,S.last,S.last,false,S.last.p);S.on=false;commitStroke()}
+function strokeMove(ps){if(!S.on)return;const minD=Math.max(.8,S.size*.12);for(const p of ps){const d=Math.hypot(p.x-S.last.x,p.y-S.last.y);if(d<minD)continue;const mid={x:(S.last.x+p.x)/2,y:(S.last.y+p.y)/2};seg(S.mid,S.last,mid,false,p.p);S.dist+=d;S.mid=mid;S.last=p}flushMask()}
+function strokeEnd(){if(!S.on)return;seg(S.mid,S.last,S.last,false,S.last.p);flushMask();S.on=false;commitStroke()}
 function strokeCancel(){if(!S.on)return;S.on=false;
   if(S.t.k==='erase'){ED.px.save();ED.px.globalCompositeOperation='copy';ED.px.drawImage(ED.before,0,0);ED.px.restore()}
   ED.sx.clearRect(0,0,ED.W,ED.H);resetStrokeStyle()}
@@ -1498,8 +1600,12 @@ function seg(a,c,b,dot,pr){
   }
   ctx.setTransform(1,0,0,1,0,0);
   S.bb=[Math.min(S.bb[0],segBB[0]),Math.min(S.bb[1],segBB[1]),Math.max(S.bb[2],segBB[2]),Math.max(S.bb[3],segBB[3])];
-  if(S.mask){const x0=Math.max(0,segBB[0]|0),y0=Math.max(0,segBB[1]|0),x1=Math.min(ED.W,Math.ceil(segBB[2])),y1=Math.min(ED.H,Math.ceil(segBB[3]));
-    if(x1>x0&&y1>y0){ctx.save();ctx.beginPath();ctx.rect(x0,y0,x1-x0,y1-y0);ctx.clip();ctx.globalCompositeOperation='destination-in';ctx.drawImage(S.mask.canvas,0,0);ctx.restore()}}
+  if(S.mask){const f=S.fbb||(S.fbb=[1e9,1e9,-1e9,-1e9]);f[0]=Math.min(f[0],segBB[0]);f[1]=Math.min(f[1],segBB[1]);f[2]=Math.max(f[2],segBB[2]);f[3]=Math.max(f[3],segBB[3])}
+}
+function flushMask(){
+  if(!S.mask||!S.fbb)return;const b=S.fbb;S.fbb=null;
+  const x0=Math.max(0,b[0]|0),y0=Math.max(0,b[1]|0),x1=Math.min(ED.W,Math.ceil(b[2])),y1=Math.min(ED.H,Math.ceil(b[3]));if(x1<=x0||y1<=y0)return;
+  const ctx=ED.sx,w=x1-x0,h=y1-y0;ctx.save();ctx.beginPath();ctx.rect(x0,y0,w,h);ctx.clip();ctx.globalCompositeOperation='destination-in';ctx.drawImage(S.mask.canvas,x0,y0,w,h,x0,y0,w,h);ctx.restore();
 }
 function clampBB(bb){const x=Math.max(0,Math.floor(bb[0])),y=Math.max(0,Math.floor(bb[1])),x2=Math.min(ED.W,Math.ceil(bb[2])),y2=Math.min(ED.H,Math.ceil(bb[3]));return x2>x&&y2>y?{x,y,w:x2-x,h:y2-y}:null}
 function commitStroke(){
@@ -1635,7 +1741,7 @@ function enterEditor(){$('#edTitle').textContent=ED.title;drawBg();drawSymGuides
 const NE={sel:0,help:true,free:false};
 function neInit(){
   NE.colC=$('#nCol');NE.brdC=$('#nBrd');NE.numC=$('#nNum');
-  NE.view=new View($('#nvp'),$('#nstage'),{start:(p,e)=>{if(e.pointerType!=='pen')return false;neTapAt(p,true);return true},move:ps=>ps.forEach(p=>neTapAt(p,true)),end:()=>{neNums();neSaveSoon()},cancel:()=>{},tap:p=>neTapAt(p,false),
+  NE.view=new View($('#nvp'),$('#nstage'),{start:(p,e)=>{if(e.pointerType!=='pen'&&!NE.mosaic)return false;neTapAt(p,true);return true},move:ps=>ps.forEach(p=>neTapAt(p,true)),end:()=>{neNums();neSaveSoon()},cancel:()=>{},tap:p=>neTapAt(p,false),
     zoom:z=>{const off=Math.abs(z-1)>=.02||!NE.view||!NE.view.autoFit;$('#nZoom').textContent=Math.round(z*100)+'%';$('#nZoom').classList.toggle('hide',Math.abs(z-1)<.02);$('#nFit').classList.toggle('hide',!off);neNums()}});
   $('#nBack').onclick=async()=>{await neSave();openHub(APP.profile.id)};
   $('#nHelp').onclick=()=>{NE.help=!NE.help;neHint();neBar()};
@@ -1647,6 +1753,10 @@ async function buildSource(src){
   if(src.t==='scene'){const sc=SCENES.find(s=>s.id===src.id),c=mk(1600,1200),x=c.getContext('2d');x.scale(1.6,1.6);sc.draw(x);
     const r=buildNumbers(c,{palette:dominantColors(c),minArea:300});c.width=c.height=0;return r}
   if(src.t==='mandala'){const img=await svgImg(mandalaSVG(src.seed,src.level));const lc=imageToLines(img,1600,1200,0.01);const r=numbersFromLineArt(lc,MPALS[src.seed%MPALS.length],src.seed);lc.width=lc.height=0;return r}
+  if(src.t==='mosaic'){const L=src.level||2,cols=[0,16,26,40][L],k=[0,8,12,18][L];let c;
+    if(src.scene){const sc=SCENES.find(s=>s.id===src.scene);c=mk(1200,900);const x=c.getContext('2d');x.scale(1.2,1.2);sc.draw(x)}
+    else{const img=await blobImg(src.blob),k2=Math.min(1200/img.naturalWidth,1200/img.naturalHeight);c=mk(Math.round(img.naturalWidth*k2),Math.round(img.naturalHeight*k2));c.getContext('2d').drawImage(img,0,0,c.width,c.height)}
+    const r=buildMosaic(c,cols,k,1);c.width=c.height=0;return r}
   if(src.t==='photo'){const img=await blobImg(src.blob),iw=img.naturalWidth,ih=img.naturalHeight,k=Math.min(1400/iw,1400/ih),W=Math.round(iw*k),H=Math.round(ih*k);
     const sm=mk(Math.round(W/3),Math.round(H/3));sm.getContext('2d').drawImage(img,0,0,sm.width,sm.height);const c=mk(W,H),x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(sm,0,0,W,H);
     const L=src.level||2;return buildNumbers(c,{k:[0,7,12,20][L],minArea:[0,1400,600,220][L],seed:1})}
@@ -1656,7 +1766,7 @@ async function openNumbers({src,title,rec}){
   try{
     if(rec){src=rec.src;title=rec.title}
     const D=await buildSource(src);
-    Object.assign(NE,{D,title,filled:new Map(rec?rec.filled:[]),free:rec?!!rec.free:false,sel:0,done:rec?!!rec.done:false});
+    Object.assign(NE,{D,title,mosaic:src.t==='mosaic',filled:new Map(rec?rec.filled:[]),free:rec?!!rec.free:false,sel:0,done:rec?!!rec.done:false});
     NE.rec=rec||freshRec('number',title,{src});
     const {W,H}=D;for(const c of [NE.colC,NE.brdC,NE.numC]){c.width=W;c.height=H}
     NE.cx=ctx2(NE.colC);NE.cd=NE.cx.createImageData(W,H);NE.cd.data.fill(255);
@@ -1720,11 +1830,11 @@ function neComposite(scale){const D=NE.D,W=Math.round(D.W*scale),H=Math.round(D.
 function neSaveSoon(){clearTimeout(NE.st);NE.st=setTimeout(neSave,1200)}
 async function neSave(){clearTimeout(NE.st);if(!NE.rec)return;try{const thumb=await toBlob(neComposite(480/NE.D.W),'image/jpeg',.82);
   Object.assign(NE.rec,{title:NE.title,filled:[...NE.filled],free:NE.free,done:NE.done,thumb,updated:Date.now()});await DB.put(NE.rec)}catch(e){console.warn(e)}}
-async function photoToNumbers(img,file){
-  let lv=APP.profile.simple?1:2;const m=modal(`<h3>Foto op nummer</h3><p>Hoe moeilijk wil je het?</p><div class="seg" id="pnSeg">${[[1,'Makkelijk'],[2,'Normaal'],[3,'Moeilijk']].map(([v,n])=>`<button data-v="${v}" class="${v===lv?'on':''}">${n}</button>`).join('')}</div><div class="mrow"><button class="btn" data-close>Annuleer</button><button class="btn pri" id="pnOk">Maken</button></div>`);
+async function photoToNumbers(img,file,mosaic){
+  let lv=APP.profile.simple?1:2;const m=modal(`<h3>${mosaic?'Foto als mozaïek':'Foto op nummer'}</h3><p>Hoe moeilijk wil je het?</p><div class="seg" id="pnSeg">${[[1,'Makkelijk'],[2,'Normaal'],[3,'Moeilijk']].map(([v,n])=>`<button data-v="${v}" class="${v===lv?'on':''}">${n}</button>`).join('')}</div><div class="mrow"><button class="btn" data-close>Annuleer</button><button class="btn pri" id="pnOk">Maken</button></div>`);
   m.el.querySelectorAll('#pnSeg button').forEach(b=>b.onclick=()=>{lv=+b.dataset.v;m.el.querySelectorAll('#pnSeg button').forEach(x=>x.classList.toggle('on',x===b))});
   m.el.querySelector('#pnOk').onclick=async()=>{m.close();const c=mk(Math.min(1600,img.naturalWidth),Math.round(Math.min(1600,img.naturalWidth)*img.naturalHeight/img.naturalWidth));c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-    const blob=await toBlob(c,'image/jpeg',.9);openNumbers({src:{t:'photo',blob,level:lv},title:'Mijn foto op nummer'})};
+    const blob=await toBlob(c,'image/jpeg',.9);openNumbers(mosaic?{src:{t:'mosaic',blob,level:lv},title:'Mijn foto-mozaïek'}:{src:{t:'photo',blob,level:lv},title:'Mijn foto op nummer'})};
 }
 
 
@@ -1733,7 +1843,7 @@ async function photoToNumbers(img,file){
    ====================================================================== */
 const AI_LIMIT=15;
 function micSvg(sz){return `<svg viewBox="0 0 64 64" width="${sz}" height="${sz}"><circle cx="32" cy="32" r="30" fill="#8b5cf6" stroke="#1d1b2c" stroke-width="3"/><rect x="24" y="12" width="16" height="26" rx="8" fill="#fff" stroke="#1d1b2c" stroke-width="3"/><path d="M18 30c0 8 6 14 14 14s14-6 14-14M32 44v8M24 52h16" fill="none" stroke="#1d1b2c" stroke-width="3" stroke-linecap="round"/><path d="M50 12l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffc22e" stroke="#1d1b2c" stroke-width="1.5"/></svg>`}
-async function loadMyPages(){try{const all=await DB.list(APP.profile.id);(APP.myPages||[]).forEach(p=>p.thumb&&p.thumb.startsWith('blob:')&&URL.revokeObjectURL(p.thumb));
+async function loadMyPages(){try{const all=await liveRecs(APP.profile.id);(APP.myPages||[]).forEach(p=>p.thumb&&p.thumb.startsWith('blob:')&&URL.revokeObjectURL(p.thumb));
   APP.myPages=all.filter(r=>r.kind==='page').sort((a,b)=>b.updated-a.updated).map(r=>({id:r.id,title:r.title,cat:'Mijn platen',level:2,blob:r.img,thumb:URL.createObjectURL(r.thumb||r.img),mine:true}))}catch(e){APP.myPages=[]}}
 function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='nl-NL';u.rate=.95;const v=speechSynthesis.getVoices().find(v=>/^nl/i.test(v.lang));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 function aiKey(){const d=new Date();return 'ai.'+APP.profile.id+'.'+d.getFullYear()+(d.getMonth()+1)+d.getDate()}
@@ -1744,9 +1854,12 @@ function aiStart(){
   if(LS.get(aiKey(),0)>=AI_LIMIT){modal(`<h3>Op voor vandaag</h3><p>Je hebt vandaag al ${AI_LIMIT} keer een eigen kleurplaat bedacht. Morgen kan het weer!</p><div class="mrow"><button class="btn pri" data-close>Oké</button></div>`);return}
   try{speechSynthesis.speak(new SpeechSynthesisUtterance(' '))}catch(e){}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let lvl=LS.get('ailvl.'+APP.profile.id,APP.profile.simple?1:2);
   const m=modal(`<div class="aiw"><h3>Wat wil je kleuren?</h3>
+    <div class="seg" id="aiLvl" style="max-width:420px;margin:0 auto 6px">${[[1,'Makkelijk'],[2,'Midden'],[3,'Moeilijk']].map(([v,n])=>`<button data-v="${v}" class="${v===lvl?'on':''}">${n}</button>`).join('')}</div>
     <div id="aiStep"></div></div>`,{wide:true,onClose:()=>{try{rec&&rec.abort()}catch(e){}speechSynthesis.cancel()}});
   const step=m.el.querySelector('#aiStep');let rec=null;
+  m.el.querySelectorAll('#aiLvl button').forEach(b=>b.onclick=()=>{lvl=+b.dataset.v;LS.set('ailvl.'+APP.profile.id,lvl);m.el.querySelectorAll('#aiLvl button').forEach(x=>x.classList.toggle('on',x===b))});
   const ask=()=>{
     step.innerHTML=`<button class="mic" id="aiMic" aria-label="Praat">${micSvg(150)}</button>
       <p class="aihint" id="aiHint">${SR?'Tik op de microfoon en zeg wat je wilt.':'Typ wat je wilt kleuren.'}</p>
@@ -1779,7 +1892,7 @@ function aiStart(){
   const make=async r=>{
     const msgs=['Even tekenen…','Potloden slijpen…','Lijntjes trekken…','Bijna klaar…'];let mi=0;
     step.innerHTML=`<div class="spin"></div><p class="aihint" id="aiMsg">${msgs[0]}</p>`;const iv=setInterval(()=>{const e=step.querySelector('#aiMsg');if(e)e.textContent=msgs[++mi%msgs.length]},2200);
-    let res;try{res=await aiPost('/api/maak',{en:r.en,n:3})}catch(e){res=null}clearInterval(iv);
+    let res;try{res=await aiPost('/api/maak',{en:r.en,n:3,level:lvl})}catch(e){res=null}clearInterval(iv);
     if(!res||!res.ok){step.innerHTML=`<p class="aihint">Dat lukte niet. Probeer het nog een keer.</p><div class="mrow"><button class="btn pri" id="aiBack">Opnieuw</button></div>`;step.querySelector('#aiBack').onclick=ask;return}
     LS.set(aiKey(),LS.get(aiKey(),0)+1);
     const pages=[];for(const b64 of res.images){try{pages.push(await cleanAiImage('data:image/jpeg;base64,'+b64))}catch(e){}}
@@ -1788,7 +1901,7 @@ function aiStart(){
     step.querySelector('#aiAgain').onclick=()=>make(r);
     step.querySelectorAll('.aich button').forEach(b=>b.onclick=async()=>{const p=pages[+b.dataset.i];
       const title=r.nl.replace(/^(een|de|het)\s+/i,'');const t=title.charAt(0).toUpperCase()+title.slice(1);
-      const rec2={id:uid(),profile:APP.profile.id,kind:'page',title:t,img:p.blob,thumb:p.thumb,created:Date.now(),updated:Date.now()};
+      const rec2={id:uid(),profile:APP.profile.id,kind:'page',title:t,level:lvl,img:p.blob,thumb:p.thumb,created:Date.now(),updated:Date.now()};
       try{await DB.put(rec2)}catch(e){}
       m.close();await loadMyPages();openColorPage({id:rec2.id,title:t,blob:p.blob,level:2})});
   };
@@ -1821,7 +1934,8 @@ async function boot(){
   $$('#side .nv').forEach(b=>b.onclick=()=>{const v=b.dataset.v;if(v==='hub')openHub(APP.profile.id);else if(v==='draw')newDrawing();else if(v==='ai')aiStart();else if(v==='gallery')openGallery();else{LIB.cat='Alles';LIB.q='';openLibrary(v)}});
   $('#sideProf').onclick=renderHome;
   $('#hubBack').onclick=renderHome;$('#hubAv').onclick=()=>editProfile(APP.profile,false);
-  $('#libBack').onclick=()=>openHub(APP.profile.id);$('#galBack').onclick=()=>openHub(APP.profile.id);
+  $('#libBack').onclick=()=>openHub(APP.profile.id);$('#galBack').onclick=()=>openHub(APP.profile.id);$('#galTrash').onclick=openTrash;purgeTrash();
+  window.addEventListener('pagehide',()=>{if(APP.screen==='editor')edSave();if(APP.screen==='numEd')neSave()});
   document.addEventListener('visibilitychange',()=>{if(document.hidden){if(APP.screen==='editor')edSave();if(APP.screen==='numEd')neSave()}});
   renderHome();
   if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
