@@ -342,6 +342,76 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
 #side .lg .lgw{color:var(--ink)}#side .lg .lgw span{color:var(--acc)}
 
 .stage{will-change:transform;box-shadow:0 0 0 2px var(--edge),0 3px 10px rgba(20,16,40,.18)}
+
+/* ================= iPhone / kleine schermen ================= */
+@media (max-width:600px){
+  .screen{padding:calc(var(--safe-t) + 10px) calc(var(--safe-r) + 12px) calc(var(--safe-b) + 10px) calc(var(--safe-l) + 12px)}
+  .mark .w{font-size:30px}.mark .logo{width:44px;height:44px;border-radius:12px}
+  .hero{min-height:0;margin:12px 0 18px}.hero .txt{padding:20px}.hero h1{font-size:28px}.hero p{font-size:15px}
+  .hero svg{opacity:.35}
+  .pgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .pcard{padding:14px 10px 12px}.av{width:70px;height:70px;font-size:32px}
+  .bar{flex-wrap:wrap;gap:8px}.bar h2{font-size:24px}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tile{min-height:150px;padding:12px 14px}.tile b{font-size:19px}.tile small{font-size:12px}
+  .aihub{grid-template-columns:auto minmax(0,1fr);gap:12px;padding:12px 14px}.aihub .aiart svg{width:56px;height:56px}.aihub b{font-size:19px}.aihub .btn{grid-column:1/-1}
+  .today{grid-template-columns:110px minmax(0,1fr);gap:12px}.today img{width:110px;height:82px}
+  .lgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  #lvlSeg{order:3;width:100%}#lvlSeg button{flex:1;padding:0 4px;font-size:13px}
+  .srch{width:100%;order:4}
+  .modal{padding:18px;border-radius:24px;max-height:88vh}.modal h3{font-size:24px}
+  .mbg{padding:10px;align-items:end}
+  .mrow{gap:8px}.mrow .btn{flex:1 1 auto;padding:0 14px;font-size:15px}
+  .bgs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stk{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .aiw h3{font-size:26px}.mic svg{width:120px;height:120px}.aitxt.big{font-size:24px}.yn button{min-height:96px;font-size:22px}
+  /* modern: zijbalk wordt tabbalk onderin */
+  #side{top:auto;left:0;right:0;bottom:0;width:auto;height:calc(64px + var(--safe-b));flex-direction:row;justify-content:space-around;align-items:flex-start;gap:0;
+    padding:6px calc(var(--safe-r) + 4px) var(--safe-b) calc(var(--safe-l) + 4px);border-right:0;border-top:1px solid var(--soft);background:var(--bg)}
+  #side .lg,#side .pf{display:none}
+  #side .nv{flex-direction:column;gap:4px;padding:6px 4px;font-size:10.5px;flex:1;min-width:0;justify-content:center;border-radius:12px}
+  #side .nv span{display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  #side .nv i{width:20px;height:20px}
+  body.withside .screen{padding-left:calc(var(--safe-l) + 12px);padding-bottom:calc(var(--safe-b) + 76px)}
+  .mtop{flex-wrap:wrap;margin:4px 0 14px}.mtop h1{font-size:26px}
+  .mhero{grid-template-columns:1fr;min-height:0}.mh-img img{max-height:200px}.mh-t{padding:18px}
+  .maib{padding:12px 14px;gap:12px}.maib svg{width:44px;height:44px}.maib b{font-size:17px}.maib small{font-size:13px}.maib .btn{display:none}
+  .hrow{grid-auto-columns:minmax(150px,46%)}
+  /* editor op telefoon (staand): gereedschap onderin als schuifbalk */
+  .editor .ed-top{gap:6px;padding:calc(var(--safe-t) + 6px) calc(var(--safe-r) + 8px) 6px calc(var(--safe-l) + 8px)}
+  .editor .ib{width:42px;height:42px;border-radius:13px}.editor .ib svg{width:21px;height:21px}
+  #bgBtn,#replayBtn{display:none!important}
+  .ed-main{flex-direction:column}
+  .rail,.lefty .rail{order:2;width:auto;max-height:none;flex-direction:row;overflow-x:auto;overflow-y:hidden;margin:6px calc(var(--safe-r) + 8px) 0 calc(var(--safe-l) + 8px);padding:4px 6px;border-radius:18px;gap:2px;flex:none}
+  .editor .rail,.editor .rail *{touch-action:pan-x}
+  .tool{width:58px;min-height:54px}.tool span{display:block!important;font-size:9.5px}.tool svg{width:26px;height:26px}
+  .simple .tool{width:64px;min-height:60px}.simple .tool svg{width:32px;height:32px}
+  .vp{margin:0 4px}
+  .ed-bot{flex-direction:column;align-items:stretch;gap:6px;padding:6px calc(var(--safe-r) + 8px) calc(var(--safe-b) + 8px) calc(var(--safe-l) + 8px)}
+  .ed-bot .panel{padding:6px 8px}
+  .sizes{justify-content:center}.sizes input{width:100%}.sizes>div:nth-child(3){display:none}.sizes>div:nth-child(2){flex:1}
+  .sw{width:36px;height:36px}.simple .sw{width:44px;height:44px}
+  .nsw{width:48px;height:48px;font-size:19px;border-radius:15px}
+  .prog{font-size:14px;padding:4px 10px}
+  .fitbtn{bottom:46px;right:8px;padding:6px 10px;font-size:13px}.zoomchip{right:8px;bottom:8px}
+}
+/* telefoon liggend: weinig hoogte */
+@media (max-height:500px) and (orientation:landscape){
+  .editor .ed-top{padding-top:calc(var(--safe-t) + 4px);padding-bottom:4px}
+  .editor .ib{width:38px;height:38px}.editor .ib svg{width:19px;height:19px}
+  .rail{width:64px;margin-bottom:6px;padding:4px 0}.tool{width:54px;min-height:44px}.tool span{display:none}.tool svg{width:26px;height:26px}
+  .simple .tool{min-height:50px}
+  .ed-bot{padding-top:4px;padding-bottom:calc(var(--safe-b) + 4px)}.ed-bot .panel{padding:4px 8px}
+  .sizes>div:nth-child(3){display:none}.sizes input{width:90px}
+  .sw{width:32px;height:32px}.simple .sw{width:38px;height:38px}.nsw{width:44px;height:44px;font-size:17px}
+  .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.tile{min-height:130px}
+  #side{width:84px;padding-top:calc(var(--safe-t) + 10px)}#side .lg{font-size:0;margin:0 0 8px}#side .lg .lgw{display:none}#side .nv span,#side .pf b{display:none}#side .nv{justify-content:center;padding:10px 0}#side .pf{display:none}
+  body.withside .screen{padding-left:calc(var(--safe-l) + 96px)}
+  .mhero{grid-template-columns:1fr 1fr;min-height:0}.mh-img img{max-height:180px}
+  .modal{max-height:92vh}
+}
+
+#side .nv .ls{display:none!important}
+@media (max-width:600px){#side .nv .ll{display:none!important}#side .nv .ls{display:block!important;font-size:11px}}
 </style>
 </head>
 <body>
@@ -370,12 +440,12 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
 <!-- HUB -->
 <nav id="side" class="hide">
   <div class="lg"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d5cff"/><stop offset=".55" stop-color="#b84dff"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient></defs><rect width="512" height="512" fill="url(#lg2)"/><path d="M118 330c40-120 120-190 200-200 46-6 80 20 72 60-10 50-90 70-130 120-28 35-14 80 30 86 36 5 70-16 96-40" fill="none" stroke="#fff" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/><circle cx="386" cy="356" r="30" fill="#ffd23f"/></svg><span class="lgw">colorbook<span>24</span></span></div>
-  <button class="nv" data-v="hub"><i style="background:var(--acc)"></i><span>Ontdekken</span></button>
-  <button class="nv" data-v="color"><i style="background:#ffb020"></i><span>Kleurplaten</span></button>
-  <button class="nv" data-v="number"><i style="background:#14c08a"></i><span>Op nummer</span></button>
-  <button class="nv" data-v="draw"><i style="background:#ff4d6d"></i><span>Tekenen</span></button>
-  <button class="nv" data-v="ai"><i style="background:#a855f7"></i><span>Bedenk zelf</span></button>
-  <button class="nv" data-v="gallery"><i style="background:#64748b"></i><span>Mijn werk</span></button>
+  <button class="nv" data-v="hub"><i style="background:var(--acc)"></i><span class="ll">Ontdekken</span><span class="ls">Ontdek</span></button>
+  <button class="nv" data-v="color"><i style="background:#ffb020"></i><span class="ll">Kleurplaten</span><span class="ls">Platen</span></button>
+  <button class="nv" data-v="number"><i style="background:#14c08a"></i><span class="ll">Op nummer</span><span class="ls">Nummer</span></button>
+  <button class="nv" data-v="draw"><i style="background:#ff4d6d"></i><span class="ll">Tekenen</span><span class="ls">Tekenen</span></button>
+  <button class="nv" data-v="ai"><i style="background:#a855f7"></i><span class="ll">Bedenk zelf</span><span class="ls">Bedenk</span></button>
+  <button class="nv" data-v="gallery"><i style="background:#64748b"></i><span class="ll">Mijn werk</span><span class="ls">Mijn werk</span></button>
   <button class="pf" id="sideProf"></button>
 </nav>
 <section class="screen" id="hub"><div class="scroll-y"><div class="wrap">
@@ -411,7 +481,6 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
     <button class="ib" id="undoBtn" aria-label="Ongedaan maken"><span data-ic="undo"></span></button>
     <button class="ib" id="redoBtn" aria-label="Opnieuw"><span data-ic="redo"></span></button>
     <button class="ib" id="insideBtn" aria-label="Binnen de lijnen"><span data-ic="inside"></span></button>
-    <button class="ib" id="symBtn" aria-label="Spiegelen"><span data-ic="sym"></span></button>
     <button class="ib" id="bgBtn" aria-label="Papier"><span data-ic="paper"></span></button>
     <button class="ib" id="replayBtn" aria-label="Terugkijken"><span data-ic="play"></span></button>
     <button class="ib" id="exportBtn" aria-label="Bewaren of delen"><span data-ic="share"></span></button>
@@ -1447,7 +1516,7 @@ function edInit(){
   ED.view=new View($('#vp'),$('#stage'),{start:strokeStart,move:strokeMove,end:strokeEnd,cancel:strokeCancel,tap:edTap,undo:edUndo,redo:edRedo,
     zoom:z=>{const off=Math.abs(z-1)>=.02||!ED.view||!ED.view.autoFit;$('#zoomChip').textContent=Math.round(z*100)+'%';$('#zoomChip').classList.toggle('hide',Math.abs(z-1)<.02);$('#fitBtn').classList.toggle('hide',!off)}});
   $('#edBack').onclick=edClose; $('#undoBtn').onclick=edUndo; $('#redoBtn').onclick=edRedo;
-  $('#symBtn').onclick=symMenu; $('#bgBtn').onclick=bgMenu; $('#insideBtn').onclick=()=>{ED.inside=!ED.inside;edButtons();toast(ED.inside?'Binnen de lijnen: aan':'Binnen de lijnen: uit')};
+  $('#bgBtn').onclick=bgMenu; $('#insideBtn').onclick=()=>{ED.inside=!ED.inside;edButtons();toast(ED.inside?'Binnen de lijnen: aan':'Binnen de lijnen: uit')};
   $('#replayBtn').onclick=replay; $('#exportBtn').onclick=()=>ED.export(); $('#moreBtn').onclick=edMore; $('#zoomChip').onclick=$('#fitBtn').onclick=()=>{ED.view.autoFit=true;ED.view.fit()};
   $('#edTitle').onclick=()=>renameDialog(ED.title,t=>{ED.title=t;$('#edTitle').textContent=t;edChanged()});
   document.addEventListener('keydown',e=>{if(APP.screen!=='editor')return;if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?edRedo():edUndo()}});
@@ -1491,7 +1560,7 @@ function edButtons(){
   $$('#sizes .sbtn').forEach(b=>{const f=+b.dataset.f;b.classList.toggle('on',Math.abs(Math.round((DEF_SIZE[t]||20)*f)-sz)<1)});
   $('#undoBtn').disabled=!ED.undo.length;$('#redoBtn').disabled=!ED.redo.length;
   $('#insideBtn').classList.toggle('hide',!ED.hasLine);$('#insideBtn').classList.toggle('on',ED.inside);
-  $('#symBtn').classList.toggle('on',ED.sym!=='off');$('#replayBtn').classList.toggle('hide',ED.frames.length<3);
+  $('#replayBtn').classList.toggle('hide',ED.frames.length<3);
   $('#bgBtn').classList.toggle('hide',ED.hasLine&&APP.profile.simple);
 }
 /* ---------- achtergrond ---------- */
@@ -1509,7 +1578,7 @@ function bgMenu(){
   m.el.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{ED.bgId=b.dataset.b;drawBg();edChanged();m.close()});
 }
 /* ---------- symmetrie ---------- */
-function symMats(){
+function symMats(){ED.sym='off';
   const cx=ED.W/2,cy=ED.H/2,I=[1,0,0,1,0,0],mx=[-1,0,0,1,2*cx,0],my=[1,0,0,-1,0,2*cy];
   const rot=a=>{const c=Math.cos(a),s=Math.sin(a);return[c,s,-s,c,cx-cx*c+cy*s,cy-cx*s-cy*c]};
   const mul=(A,B)=>[A[0]*B[0]+A[2]*B[1],A[1]*B[0]+A[3]*B[1],A[0]*B[2]+A[2]*B[3],A[1]*B[2]+A[3]*B[3],A[0]*B[4]+A[2]*B[5]+A[4],A[1]*B[4]+A[3]*B[5]+A[5]];
@@ -1670,11 +1739,14 @@ async function edSave(){
 async function edClose(){await edSave();openHub(APP.profile.id)}
 function edMore(){
   const m=modal(`<h3>Meer</h3><div style="display:grid;gap:10px">
+    <button class="btn" id="mmBg">${ic('paper')}Papier kiezen</button>
+    ${ED.frames.length>2?`<button class="btn" id="mmReplay">${ic('play')}Terugkijken</button>`:''}
     <button class="btn" id="mmRename">Naam wijzigen</button>
     <button class="btn" id="mmFit">${ic('fit')}Passend maken</button>
     <button class="btn warn" id="mmClear">${ic('trash')}Alles wissen</button></div>
-    <p style="margin-top:16px">Handig: tik met <b>twee vingers</b> om iets ongedaan te maken, met <b>drie vingers</b> om het terug te zetten. Knijp om in te zoomen.</p>
+    <p style="margin-top:16px">Handig: tik met <b>twee vingers</b> om iets ongedaan te maken, met <b>drie vingers</b> om het terug te zetten. Knijp om in te zoomen, schuif met twee vingers.</p>
     <div class="mrow"><button class="btn pri" data-close>Klaar</button></div>`);
+  m.el.querySelector('#mmBg').onclick=()=>{m.close();bgMenu()};const rp=m.el.querySelector('#mmReplay');if(rp)rp.onclick=()=>{m.close();replay()};
   m.el.querySelector('#mmRename').onclick=()=>{m.close();renameDialog(ED.title,t=>{ED.title=t;$('#edTitle').textContent=t;edChanged()})};
   m.el.querySelector('#mmFit').onclick=()=>{m.close();ED.view.autoFit=true;ED.view.fit()};
   m.el.querySelector('#mmClear').onclick=()=>{const b=ED.px.getImageData(0,0,ED.W,ED.H);ED.px.clearRect(0,0,ED.W,ED.H);pushUndo(0,0,ED.W,ED.H,b);edChanged(true);m.close()};
