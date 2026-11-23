@@ -964,6 +964,25 @@ class View{
 let DBG=null;
 function dbg(t){ if(!DBG) return; DBG.push(new Date().toISOString().slice(17,23)+' '+t); if(DBG.length>14) DBG.shift(); const el=document.getElementById('dbgPanel'); if(el) el.textContent=DBG.join('\n'); }
 
+/* ---------- foto -> kleurplaat met gesloten vlakken (posterize + randen) ---------- */
+function photoToRegions(img, detail=2, outMax=1600){
+  const iw=img.naturalWidth||img.width, ih=img.naturalHeight||img.height, k0=Math.min(1,900/Math.max(iw,ih)), W=Math.round(iw*k0), H=Math.round(ih*k0);
+  const sm=mk(Math.max(1,Math.round(W/3)),Math.max(1,Math.round(H/3)));sm.getContext('2d').drawImage(img,0,0,sm.width,sm.height);
+  const c=mk(W,H),x=ctx2(c);x.imageSmoothingQuality='high';x.drawImage(sm,0,0,W,H);
+  const D=buildNumbers(c,{k:[0,6,10,16][detail],minArea:[0,2600,900,300][detail],seed:1});c.width=c.height=sm.width=sm.height=0;
+  const lab=D.lab,m=new Uint8Array(W*H);
+  for(let y=0;y<H;y++)for(let xx=0;xx<W;xx++){const i=y*W+xx;if((xx<W-1&&lab[i+1]!==lab[i])||(y<H-1&&lab[i+W]!==lab[i]))m[i]=1}
+  // kader zodat de rand ook dicht is
+  for(let xx=0;xx<W;xx++){m[xx]=1;m[(H-1)*W+xx]=1}for(let y=0;y<H;y++){m[y*W]=1;m[y*W+W-1]=1}
+  const lc=mk(W,H),lx=ctx2(lc),o=lx.createImageData(W,H);
+  for(let i=0;i<W*H;i++){const v=m[i]?0:255;o.data[i*4]=o.data[i*4+1]=o.data[i*4+2]=v;o.data[i*4+3]=255}
+  lx.putImageData(o,0,0);
+  const k=Math.min(outMax/W,outMax/H),OW=Math.round(W*k),OH=Math.round(H*k),oc=mk(OW,OH),ox=ctx2(oc);
+  ox.fillStyle='#fff';ox.fillRect(0,0,OW,OH);ox.imageSmoothingEnabled=true;ox.imageSmoothingQuality='high';ox.drawImage(lc,0,0,OW,OH);
+  ox.globalCompositeOperation='multiply';for(const [dx,dy] of [[1,0],[0,1],[1,1],[-1,0],[0,-1]])ox.drawImage(oc,dx,dy);ox.globalCompositeOperation='source-over';
+  lc.width=lc.height=0;return oc;
+}
+
 /* ===== Colorbook24 – app ===== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1449,7 +1468,7 @@ async function openColorPage(pg){
 async function photoToColoring(img){
   let det=2;const m=modal(`<h3>Foto naar kleurplaat</h3><p>Kies hoeveel lijnen je wilt.</p><img class="prev" id="ppPrev" alt="voorbeeld"><div class="seg" style="margin-top:12px" id="ppSeg">${[[1,'Weinig'],[2,'Normaal'],[3,'Veel']].map(([v,n])=>`<button data-v="${v}" class="${v===det?'on':''}">${n}</button>`).join('')}</div>
    <div class="mrow"><button class="btn" data-close>Annuleer</button><button class="btn pri" id="ppOk">Maak kleurplaat</button></div>`,{wide:true});
-  let out=null;const run=async()=>{m.el.querySelector('#ppPrev').style.opacity=.4;await nextFrame();out=photoToLineArt(img,det,1600);m.el.querySelector('#ppPrev').src=out.toDataURL('image/jpeg',.8);m.el.querySelector('#ppPrev').style.opacity=1};
+  let out=null;const run=async()=>{m.el.querySelector('#ppPrev').style.opacity=.4;await nextFrame();out=photoToRegions(img,det,1600);m.el.querySelector('#ppPrev').src=out.toDataURL('image/jpeg',.8);m.el.querySelector('#ppPrev').style.opacity=1};
   m.el.querySelectorAll('#ppSeg button').forEach(b=>b.onclick=()=>{det=+b.dataset.v;m.el.querySelectorAll('#ppSeg button').forEach(x=>x.classList.toggle('on',x===b));run()});
   await run();
   m.el.querySelector('#ppOk').onclick=()=>{m.close();edSetup(out.width,out.height);const lc=imageToLines(out,out.width,out.height,0);ED.lx.drawImage(lc,0,0);lc.width=lc.height=0;out.width=out.height=0;ED.barrier=barrierFrom(ED.line);ED.hasLine=true;
