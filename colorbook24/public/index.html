@@ -331,6 +331,9 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
   .mhero{grid-template-columns:1fr}.hrow{grid-auto-columns:minmax(170px,42%)}.srch{width:180px}}
 
 .pcard.add.first{border-style:solid;background:var(--card)}.pcard.add.first .av{background:var(--acc);color:#fff;border-style:solid}
+
+.fitbtn{position:absolute;right:12px;bottom:52px;z-index:3;display:flex;align-items:center;gap:6px;font-weight:800;font-size:14px;background:var(--card);border:2px solid var(--edge);border-radius:999px;padding:8px 14px;box-shadow:var(--sh)}
+.fitbtn svg{width:18px;height:18px}.m .fitbtn,.m .zoomchip{border:0;box-shadow:var(--sh)}
 </style>
 </head>
 <body>
@@ -409,7 +412,7 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
     <div class="rail" id="toolRail"></div>
     <div class="vp" id="vp">
       <div class="stage" id="stage"><canvas id="cBg"></canvas><canvas id="cPaint"></canvas><canvas id="cStroke"></canvas><canvas id="cLine"></canvas><svg class="ov" id="cOv"></svg></div>
-      <button class="zoomchip hide" id="zoomChip">100%</button>
+      <button class="fitbtn hide" id="fitBtn" aria-label="Terug naar het midden"><span data-ic="fit"></span>Midden</button><button class="zoomchip hide" id="zoomChip">100%</button>
     </div>
   </div>
   <div class="ed-bot"><div class="panel sizes" id="sizes"></div><div class="panel" style="flex:1;min-width:0"><div class="pal" id="pal"></div></div></div>
@@ -427,7 +430,7 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
   </div>
   <div class="ed-main"><div class="vp" id="nvp" style="margin:0 12px 0 calc(var(--safe-l) + 12px)">
     <div class="stage" id="nstage"><canvas id="nCol"></canvas><canvas id="nBrd"></canvas><canvas id="nNum"></canvas></div>
-    <button class="zoomchip hide" id="nZoom">100%</button>
+    <button class="fitbtn hide" id="nFit" aria-label="Terug naar het midden"><span data-ic="fit"></span>Midden</button><button class="zoomchip hide" id="nZoom">100%</button>
   </div></div>
   <div class="ed-bot"><div class="panel" style="flex:1;min-width:0"><div class="pal" id="nPal" style="padding:6px 4px 12px"></div></div></div>
 </section>
@@ -1004,7 +1007,7 @@ class View{
     if(this.penOn&&e.pointerType==='touch') return; // palm
     if(this.touches.size>=1&&(this.drawId!=null||!this.allowZoom)){
       // al aan het tekenen: alleen een échte twee-vinger-start (heel snel na de eerste, nauwelijks bewogen) telt; anders is het de hand/palm
-      const fresh=this.drawId!=null&&performance.now()-this.drawT<180&&this.drawDist<14;
+      const fresh=this.drawId!=null&&performance.now()-this.drawT<600&&this.drawDist<36;
       if(!(fresh&&this.allowZoom)){dbg('genegeerd (hand)');return}
     }
     this.touches.set(e.pointerId,this.local(e));
@@ -1334,10 +1337,10 @@ function edInit(){
   ED.bx=ctx2(ED.bg);ED.px=ctx2(ED.paint);ED.sx=ctx2(ED.stroke);ED.lx=ctx2(ED.line);
   ED.before=mk(1,1);ED.tmp=mk(1,1);ED.maskC=mk(1,1);
   ED.view=new View($('#vp'),$('#stage'),{start:strokeStart,move:strokeMove,end:strokeEnd,cancel:strokeCancel,tap:edTap,undo:edUndo,redo:edRedo,
-    zoom:z=>{$('#zoomChip').textContent=Math.round(z*100)+'%';$('#zoomChip').classList.toggle('hide',Math.abs(z-1)<.02)}});
+    zoom:z=>{const off=Math.abs(z-1)>=.02||!ED.view||!ED.view.autoFit;$('#zoomChip').textContent=Math.round(z*100)+'%';$('#zoomChip').classList.toggle('hide',Math.abs(z-1)<.02);$('#fitBtn').classList.toggle('hide',!off)}});
   $('#edBack').onclick=edClose; $('#undoBtn').onclick=edUndo; $('#redoBtn').onclick=edRedo;
   $('#symBtn').onclick=symMenu; $('#bgBtn').onclick=bgMenu; $('#insideBtn').onclick=()=>{ED.inside=!ED.inside;edButtons();toast(ED.inside?'Binnen de lijnen: aan':'Binnen de lijnen: uit')};
-  $('#replayBtn').onclick=replay; $('#exportBtn').onclick=()=>ED.export(); $('#moreBtn').onclick=edMore; $('#zoomChip').onclick=()=>{ED.view.autoFit=true;ED.view.fit()};
+  $('#replayBtn').onclick=replay; $('#exportBtn').onclick=()=>ED.export(); $('#moreBtn').onclick=edMore; $('#zoomChip').onclick=$('#fitBtn').onclick=()=>{ED.view.autoFit=true;ED.view.fit()};
   $('#edTitle').onclick=()=>renameDialog(ED.title,t=>{ED.title=t;$('#edTitle').textContent=t;edChanged()});
   document.addEventListener('keydown',e=>{if(APP.screen!=='editor')return;if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?edRedo():edUndo()}});
   ED.export=async()=>shareCanvas(edComposite(1),ED.title);
@@ -1627,11 +1630,11 @@ const NE={sel:0,help:true,free:false};
 function neInit(){
   NE.colC=$('#nCol');NE.brdC=$('#nBrd');NE.numC=$('#nNum');
   NE.view=new View($('#nvp'),$('#nstage'),{start:(p,e)=>{if(e.pointerType!=='pen')return false;neTapAt(p,true);return true},move:ps=>ps.forEach(p=>neTapAt(p,true)),end:()=>{neNums();neSaveSoon()},cancel:()=>{},tap:p=>neTapAt(p,false),
-    zoom:z=>{$('#nZoom').textContent=Math.round(z*100)+'%';$('#nZoom').classList.toggle('hide',Math.abs(z-1)<.02);neNums()}});
+    zoom:z=>{const off=Math.abs(z-1)>=.02||!NE.view||!NE.view.autoFit;$('#nZoom').textContent=Math.round(z*100)+'%';$('#nZoom').classList.toggle('hide',Math.abs(z-1)<.02);$('#nFit').classList.toggle('hide',!off);neNums()}});
   $('#nBack').onclick=async()=>{await neSave();openHub(APP.profile.id)};
   $('#nHelp').onclick=()=>{NE.help=!NE.help;neHint();neBar()};
   $('#nFree').onclick=()=>{NE.free=!NE.free;neBar();toast(NE.free?'Vrij kleuren: elke kleur mag overal':'Kleuren volgens de nummers')};
-  $('#nExport').onclick=()=>NE.export();$('#nZoom').onclick=()=>{NE.view.autoFit=true;NE.view.fit()};
+  $('#nExport').onclick=()=>NE.export();$('#nZoom').onclick=$('#nFit').onclick=()=>{NE.view.autoFit=true;NE.view.fit()};
   NE.export=()=>shareCanvas(neComposite(1),NE.title);
 }
 async function buildSource(src){

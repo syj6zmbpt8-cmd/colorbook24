@@ -1,5 +1,5 @@
 // Colorbook24 worker: serveert de app en maakt AI-kleurplaten (Workers AI)
-const MODEL_TXT = '@cf/meta/llama-3.1-8b-instruct';
+const MODELS_TXT = ['@cf/meta/llama-3.1-8b-instruct-fp8', '@cf/mistralai/mistral-small-3.1-24b-instruct', '@cf/meta/llama-3.2-3b-instruct'];
 const MODEL_IMG = '@cf/black-forest-labs/flux-1-schnell';
 const BLOCK = /(bloed|dood|doden|vermoord|wapen|pistool|geweer|mes |bom|naakt|bloot|sex|seks|drugs|alcohol|sigaret|horror|eng lijk|zelfmoord|nazi|hakenkruis|gun|blood|kill|naked|nude|weapon)/i;
 
@@ -21,8 +21,10 @@ async function idee(env, text) {
     '"en": a short English description of the scene for an image generator, max 25 words, no style words.';
   let out = null;
   try {
-    const r = await env.AI.run(MODEL_TXT, { messages: [{ role: 'system', content: sys }, { role: 'user', content: text }], max_tokens: 160 });
-    const s = (r && (r.response || r.result || '')) + '';
+    let r = null, last = null;
+    for (const mdl of MODELS_TXT) { try { r = await env.AI.run(mdl, { messages: [{ role: 'system', content: sys }, { role: 'user', content: text }], max_tokens: 160 }); break; } catch (e) { last = e; } }
+    if (!r) throw last;
+    const s = (r && (typeof r.response === 'string' ? r.response : JSON.stringify(r.response || r.result || ''))) + '';
     const m = s.match(/\{[\s\S]*\}/);
     if (m) out = JSON.parse(m[0]);
   } catch (e) { out = null; globalThis.__lastErr = String(e && e.message || e); }
@@ -38,7 +40,7 @@ async function maak(env, en, n) {
     'large closed shapes, no shading, no gray, no color, no text, no letters, no border, centered, friendly.';
   const jobs = [], errs = [];
   for (let i = 0; i < Math.min(3, n || 3); i++) {
-    jobs.push(env.AI.run(MODEL_IMG, { prompt, steps: 6, seed: Math.floor(Math.random() * 1e9) }).then(r => r && r.image).catch(e => { errs.push(String(e && e.message || e)); return null; }));
+    jobs.push(env.AI.run(MODEL_IMG, { prompt: prompt + ' Variation ' + (i + 1) + '.', steps: 6 }).then(r => r && r.image).catch(e => { errs.push(String(e && e.message || e)); return null; }));
   }
   const imgs = (await Promise.all(jobs)).filter(Boolean);
   return { ok: imgs.length > 0, images: imgs, fout: imgs.length ? undefined : errs.slice(0, 2) };
