@@ -329,6 +329,8 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
 @media(max-width:860px){#side{width:84px;padding-left:calc(var(--safe-l) + 10px);padding-right:10px}#side .lg{font-size:0;margin:0 0 18px}#side .lg span{font-size:22px}
   #side .nv span,#side .pf b{display:none}#side .nv{justify-content:center;padding:14px 0}body.withside .screen{padding-left:calc(var(--safe-l) + 100px)}
   .mhero{grid-template-columns:1fr}.hrow{grid-auto-columns:minmax(170px,42%)}.srch{width:180px}}
+
+.pcard.add.first{border-style:solid;background:var(--card)}.pcard.add.first .av{background:var(--acc);color:#fff;border-style:solid}
 </style>
 </head>
 <body>
@@ -348,7 +350,7 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
       </g>
       <g fill="#fff"><path d="M620 60l6 14 14 6-14 6-6 14-6-14-14-6 14-6z"/><path d="M1150 220l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/><circle cx="700" cy="230" r="6"/><circle cx="560" cy="150" r="4"/></g>
     </svg>
-    <div class="txt"><h1>Wie gaat er tekenen?</h1><p>Vrij tekenen, kleurplaten en kleuren op nummer. Ook zonder internet.</p></div>
+    <div class="txt"><h1 id="homeTitle">Wie gaat er tekenen?</h1><p id="homeSub">Vrij tekenen, kleurplaten en kleuren op nummer. Ook zonder internet.</p></div>
   </div>
   <div class="pgrid" id="profiles"></div>
 </div></div></section>
@@ -1137,15 +1139,17 @@ function applyTheme(p){const d=designOf(p);const r=document.documentElement;r.da
 
 /* ---------- profielen ---------- */
 const APP={screen:'home',profile:null,aiPages:[]};
-function profiles(){let p=LS.get('profiles',null);if(!p){p=[{id:'ian',name:'Ian',color:'#2e7dff',simple:false},{id:'noi',name:'Noï',color:'#ff7eb6',simple:true},{id:'ouders',name:'Papa & mama',color:'#12b37e',simple:false}];LS.set('profiles',p)}return p}
+function profiles(){return LS.get('profiles',[])}
 function saveProfile(pr){const ps=profiles();const i=ps.findIndex(p=>p.id===pr.id);if(i>=0)ps[i]=pr;else ps.push(pr);LS.set('profiles',ps)}
 const avatar=(p,sz)=>`<span class="av" style="background:${p.color}${sz?`;width:${sz}px;height:${sz}px;font-size:${sz*.48}px`:''}">${esc((p.name||'?').trim()[0]||'?').toUpperCase()}</span>`;
 
 function renderHome(){
   APP.profile=null;applyTheme(null);$('#side').classList.add('hide');document.body.classList.remove('withside');
   const ps=profiles();
+  $('#homeTitle').textContent=ps.length?'Wie gaat er tekenen?':'Welkom bij Colorbook24';
+  $('#homeSub').textContent=ps.length?'Kies je profiel. Alles blijft op dit apparaat.':'Maak je eigen profiel. Geen account nodig: alles blijft op dit apparaat.';
   $('#profiles').innerHTML=ps.map(p=>`<button class="pcard" data-p="${p.id}">${avatar(p)}<b>${esc(p.name)}</b><small>${p.simple?'Eenvoudig':'Alle gereedschap'}</small></button>`).join('')+
-    `<button class="pcard add" id="addProf"><span class="av">+</span><b>Nieuw profiel</b><small>Voor een kind of volwassene</small></button>`;
+    `<button class="pcard add${ps.length?'':' first'}" id="addProf"><span class="av">+</span><b>${ps.length?'Nieuw profiel':'Maak je profiel'}</b><small>Voor een kind of volwassene</small></button>`;
   $$('#profiles [data-p]').forEach(b=>b.onclick=()=>openHub(b.dataset.p));
   $('#addProf').onclick=()=>editProfile({id:uid(),name:'',color:AVCOL[ps.length%AVCOL.length],simple:false},true);
   show('home');
@@ -1158,13 +1162,14 @@ function editProfile(p,isNew){
    <label class="tg"><span>Eenvoudige modus<small>Grote knoppen, minder gereedschap. Fijn voor jonge kinderen.</small></span><span class="switch"><input type="checkbox" id="pfSimple" ${p.simple?'checked':''}><i></i></span></label>
    <label class="tg"><span>Alleen tekenen met Apple Pencil<small>Met je vinger schuif en zoom je dan.</small></span><span class="switch"><input type="checkbox" id="pfPencil" ${p.pencil?'checked':''}><i></i></span></label>
    <label class="tg"><span>Zoomen met twee vingers<small>Uit = de hand mag op het scherm rusten tijdens het tekenen.</small></span><span class="switch"><input type="checkbox" id="pfZoom" ${p.zoom!==false&&!(p.zoom==null&&p.simple)?'checked':''}><i></i></span></label>
+   <label class="tg"><span>Bedenk zelf (AI)<small>Eigen kleurplaten laten maken. Alleen de tekst van je idee gaat naar buiten, geen naam.</small></span><span class="switch"><input type="checkbox" id="pfAi" ${p.ai!==false?'checked':''}><i></i></span></label>
    <label class="tg"><span>Linkshandig<small>Gereedschap aan de rechterkant.</small></span><span class="switch"><input type="checkbox" id="pfLeft" ${p.lefty?'checked':''}><i></i></span></label>
    <div class="mrow">${isNew?'':`<button class="btn warn" id="pfDel">${ic('trash')}Vasthouden om te wissen</button>`}<span class="grow"></span><button class="btn" data-close>Annuleer</button><button class="btn pri" id="pfOk">${ic('check')}Bewaar</button></div>`);
   let des=designOf(p); m.el.querySelectorAll('#pfDesign button').forEach(b=>b.onclick=()=>{des=b.dataset.d;m.el.querySelectorAll('#pfDesign button').forEach(x=>x.classList.toggle('on',x===b))});
   let col=p.color; m.el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{col=b.dataset.c;m.el.querySelectorAll('[data-c]').forEach(x=>x.classList.toggle('on',x===b))});
   m.el.querySelector('#pfOk').onclick=()=>{const n=m.el.querySelector('#pfName').value.trim();if(!n){m.el.querySelector('#pfName').focus();return}
-    Object.assign(p,{name:n,color:col,simple:m.el.querySelector('#pfSimple').checked,pencil:m.el.querySelector('#pfPencil').checked,lefty:m.el.querySelector('#pfLeft').checked,zoom:m.el.querySelector('#pfZoom').checked,design:des});
-    saveProfile(p);m.close();if(APP.screen==='hub')openHub(p.id);else renderHome()};
+    Object.assign(p,{name:n,color:col,simple:m.el.querySelector('#pfSimple').checked,pencil:m.el.querySelector('#pfPencil').checked,lefty:m.el.querySelector('#pfLeft').checked,zoom:m.el.querySelector('#pfZoom').checked,design:des,ai:m.el.querySelector('#pfAi').checked});
+    saveProfile(p);m.close();if(APP.screen==='hub'||isNew)openHub(p.id);else renderHome()};
   const del=m.el.querySelector('#pfDel');
   if(del) holdButton(del,1200,async()=>{LS.set('profiles',profiles().filter(x=>x.id!==p.id));try{for(const r of await DB.list(p.id))await DB.del(r.id)}catch(e){}m.close();renderHome()});
 }
@@ -1178,7 +1183,7 @@ const TILE_ART={
 };
 async function openHub(pid){
   const p=profiles().find(x=>x.id===pid); if(!p) return renderHome(); APP.profile=p; applyTheme(p);
-  $('#sideProf').innerHTML=avatar(p,36)+`<b>${esc(p.name)}</b>`;
+  $('#sideProf').innerHTML=avatar(p,36)+`<b>${esc(p.name)}</b>`;$('#side .nv[data-v="ai"]').classList.toggle('hide',p.ai===false);
   if(designOf(p)!=='speels'){ $('#hubClassic').classList.add('hide'); $('#hubModern').classList.remove('hide'); await renderModernHub(p); show('hub'); return; }
   $('#hubClassic').classList.remove('hide'); $('#hubModern').classList.add('hide');
   $('#hubAv').innerHTML=avatar(p,52); $('#hubHi').textContent='Hoi '+p.name+'!';
@@ -1186,7 +1191,7 @@ async function openHub(pid){
     .map(([k,t,s])=>`<button class="tile" data-k="${k}">${TILE_ART[k]}<b>${t}</b><small>${s}</small></button>`).join('');
   $$('#tiles .tile').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(k==='draw')newDrawing();else if(k==='gallery')openGallery();else openLibrary(k)});
   $('#aiHub').innerHTML=`<div class="aiart">${micSvg(84)}</div><div><b>Bedenk je eigen kleurplaat</b><p>Zeg wat je wilt tekenen, en kies uit 3 platen.</p></div><button class="btn pri">${'Probeer!'}</button>`;
-  $('#aiHub').onclick=aiStart;
+  $('#aiHub').onclick=aiStart;$('#aiHub').classList.toggle('hide',p.ai===false);
   // plaat van vandaag
   await loadMyPages();
   const tp=todayPage(); $('#today').innerHTML=`<img alt="" src="${tp.thumb}"><div><b>Kleurplaat van vandaag</b><p style="margin:4px 0 12px;color:var(--mute)">${esc(tp.title)}. Elke dag een nieuwe.</p><button class="btn pri" id="todayGo">Inkleuren</button></div>`;
@@ -1227,7 +1232,7 @@ async function renderModernHub(p){
   H.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>openColorPage(map.get(b.dataset.pg)));
   H.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>openRecord(b.dataset.rec));
   H.querySelectorAll('[data-all]').forEach(b=>b.onclick=()=>{const c=b.dataset.all;if(c==='gallery')openGallery();else{LIB.cat=c;LIB.q='';openLibrary('color')}});
-  $('#mhGo').onclick=()=>openColorPage(tp);$('#mAi').onclick=aiStart;
+  $('#mhGo').onclick=()=>openColorPage(tp);$('#mAi').onclick=aiStart;$('#mAi').classList.toggle('hide',p.ai===false);
   $('#hubSearch').onkeydown=e=>{if(e.key==='Enter'){LIB.q=e.target.value.trim();LIB.cat='Alles';openLibrary('color')}};
 }
 
@@ -1258,7 +1263,7 @@ function renderLibrary(){
     $$('#libChips .chip').forEach(b=>b.onclick=()=>{LIB.cat=b.dataset.c;renderLibrary()});
     const q=(LIB.q||'').toLowerCase();let list=allColorPages().filter(p=>(LIB.cat==='Alles'||p.cat===LIB.cat)&&(!LIB.lvl||p.level===LIB.lvl)&&(!q||(p.title+' '+p.cat).toLowerCase().includes(q)));
     if(simple) list.sort((a,b)=>a.level-b.level);
-    html+=`<button class="lcard spec ai" id="aiCard"><div class="th">${micSvg(64)}</div><div class="cap"><b>Bedenk zelf</b></div></button>`;
+    if(APP.profile.ai!==false)html+=`<button class="lcard spec ai" id="aiCard"><div class="th">${micSvg(64)}</div><div class="cap"><b>Bedenk zelf</b></div></button>`;
     html+=`<button class="lcard spec" id="fromPhoto"><div class="th">${ic('photo')}</div><div class="cap"><b>Van een foto</b></div></button>`;
     if(LIB.cat==='Alles'||LIB.cat==='Patronen') html+=`<button class="lcard spec" data-new="pattern"><div class="th">${ic('grid')}</div><div class="cap"><b>Nieuw patroon</b></div></button>`;
     html+=list.map(p=>`<button class="lcard" data-id="${p.id}"><div class="th"><img loading="lazy" alt="" src="${p.thumb}"></div><div class="cap"><b>${esc(p.title)}</b>${lvlDots(p.level)}</div></button>`).join('');
@@ -1267,7 +1272,7 @@ function renderLibrary(){
     $$('#libGrid [data-id]').forEach(b=>b.onclick=()=>openColorPage(map.get(b.dataset.id)));
     $$('#libGrid [data-new]').forEach(b=>b.onclick=()=>{const s=(Math.random()*1e9)|0,l=LIB.lvl||(simple?1:2),g=b.dataset.new;const svg=g==='mandala'?mandalaSVG(s,l):patternSVG(s,l);
       openColorPage({id:g[0]+'-'+s+'-'+l,title:g==='mandala'?'Mandala':'Tegelpatroon',level:l,svg:()=>svg})});
-    $('#fromPhoto').onclick=()=>pickPhoto(photoToColoring);$('#aiCard').onclick=aiStart;
+    $('#fromPhoto').onclick=()=>pickPhoto(photoToColoring);if($('#aiCard'))$('#aiCard').onclick=aiStart;
   }else{
     const items=[...SCENES.map(s=>({t:'scene',id:s.id,title:s.title,level:s.level,thumb:sceneThumb(s)})),
 ]
@@ -1725,6 +1730,7 @@ function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='nl-NL';u.r
 function aiKey(){const d=new Date();return 'ai.'+APP.profile.id+'.'+d.getFullYear()+(d.getMonth()+1)+d.getDate()}
 async function aiPost(path,body){const r=await fetch(path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
 function aiStart(){
+  if(APP.profile&&APP.profile.ai===false)return;
   if(!navigator.onLine){toast('Hiervoor heb je internet nodig');return}
   if(LS.get(aiKey(),0)>=AI_LIMIT){modal(`<h3>Op voor vandaag</h3><p>Je hebt vandaag al ${AI_LIMIT} keer een eigen kleurplaat bedacht. Morgen kan het weer!</p><div class="mrow"><button class="btn pri" data-close>Oké</button></div>`);return}
   try{speechSynthesis.speak(new SpeechSynthesisUtterance(' '))}catch(e){}
