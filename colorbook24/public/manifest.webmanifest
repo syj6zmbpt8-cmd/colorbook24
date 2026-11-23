@@ -1,0 +1,16 @@
+{
+  "name": "Colorbook24",
+  "short_name": "Colorbook24",
+  "description": "Tekenen, kleurplaten en kleuren op nummer. Ook offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f1e7",
+  "theme_color": "#f6f1e7",
+  "lang": "nl",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

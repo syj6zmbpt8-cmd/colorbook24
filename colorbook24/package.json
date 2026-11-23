@@ -1,0 +1,11 @@
+{
+  "name": "colorbook24",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/fetch-pages.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5"
+  }
+}
