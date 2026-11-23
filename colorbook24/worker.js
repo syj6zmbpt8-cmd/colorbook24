@@ -25,8 +25,8 @@ async function idee(env, text) {
     const s = (r && (r.response || r.result || '')) + '';
     const m = s.match(/\{[\s\S]*\}/);
     if (m) out = JSON.parse(m[0]);
-  } catch (e) { out = null; }
-  if (!out) return { ok: true, nl: text, en: text };
+  } catch (e) { out = null; globalThis.__lastErr = String(e && e.message || e); }
+  if (!out) return { ok: true, nl: text, en: text, debug: globalThis.__lastErr };
   if (out.ok === false) return { ok: false, reden: 'ongepast' };
   return { ok: true, nl: String(out.nl || text).slice(0, 80), en: String(out.en || text).slice(0, 200) };
 }
@@ -36,12 +36,12 @@ async function maak(env, en, n) {
   if (!en || BLOCK.test(en)) return { ok: false };
   const prompt = 'Children\'s coloring book page: ' + en + '. Clean bold black outlines on a pure white background, simple cute cartoon style, ' +
     'large closed shapes, no shading, no gray, no color, no text, no letters, no border, centered, friendly.';
-  const jobs = [];
+  const jobs = [], errs = [];
   for (let i = 0; i < Math.min(3, n || 3); i++) {
-    jobs.push(env.AI.run(MODEL_IMG, { prompt, steps: 6, seed: Math.floor(Math.random() * 1e9) }).then(r => r && r.image).catch(() => null));
+    jobs.push(env.AI.run(MODEL_IMG, { prompt, steps: 6, seed: Math.floor(Math.random() * 1e9) }).then(r => r && r.image).catch(e => { errs.push(String(e && e.message || e)); return null; }));
   }
   const imgs = (await Promise.all(jobs)).filter(Boolean);
-  return { ok: imgs.length > 0, images: imgs };
+  return { ok: imgs.length > 0, images: imgs, fout: imgs.length ? undefined : errs.slice(0, 2) };
 }
 
 export default {
@@ -52,6 +52,7 @@ export default {
       let body = {};
       try { body = await req.json(); } catch (e) {}
       try {
+        if (url.pathname === '/api/check') return json({ ai: !!env.AI });
         if (url.pathname === '/api/idee') return json(await idee(env, body.text));
         if (url.pathname === '/api/maak') return json(await maak(env, body.en, body.n));
       } catch (e) { return json({ ok: false, fout: String(e && e.message || e) }, 500); }
