@@ -243,6 +243,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .lcard.spec .th svg{width:64px;height:64px;color:var(--ink)}
 .tool{min-height:54px}.tool svg{width:30px;height:30px}.tool span{font-size:10.5px}
 @media(max-width:760px){#lvlSeg button{padding:0 8px;font-size:13px}}
+
+.editor .rail,.editor .rail *{touch-action:pan-y}
+.editor .pal,.editor .pal *,.editor #nPal,.editor #nPal *{touch-action:pan-x}
+.rail{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.tool{min-height:46px;gap:0}.tool svg{width:28px;height:28px}
+.simple .tool{min-height:60px}.simple .tool svg{width:38px;height:38px}
 </style>
 </head>
 <body>
@@ -602,7 +608,7 @@ function mandalaColorDraw(seed, level){
 }
 
 /* ---------- platen-catalogus ---------- */
-const CATS = ['Alles','Sport','Dansen','Prinsessen',"Auto's",'Dieren',"Dino's",'Ruimte','Oceaan','Feest','Fantasie','Natuur','Mandala','Patronen'];
+const CATS = ['Alles','Stoer',"Auto's",'Sport','Dansen',"Dino's",'Prinsessen','Dieren','Ruimte','Oceaan','Feest','Fantasie','Natuur','Mandala','Patronen'];
 
 /* ===== Colorbook24 – engine ===== */
 
@@ -979,8 +985,8 @@ const TOOLS={
   picker:{n:'Pipet',k:'pick'},
   eraser:{n:'Gum',k:'erase',a:1,press:.5},
 };
-const T_FULL=['pencil','pen','marker','crayon','brush','spray','neon','rainbow','glitter','fill','sticker','picker','eraser'];
-const T_KID=['crayon','marker','brush','rainbow','glitter','neon','fill','sticker','eraser'];
+const T_FULL=['fill','crayon','pencil','pen','marker','brush','eraser','spray','neon','rainbow','glitter','sticker','picker'];
+const T_KID=['fill','crayon','marker','brush','eraser','rainbow','glitter','neon','sticker'];
 const DEF_SIZE={pencil:6,pen:8,marker:22,crayon:26,brush:40,spray:60,neon:18,rainbow:24,glitter:40,eraser:40,sticker:30};
 const BGS=[{id:'white',n:'Wit',c:'#ffffff'},{id:'cream',n:'Crème',c:'#fbf3e0'},{id:'kraft',n:'Karton',c:'#d6b88e'},{id:'black',n:'Zwart',c:'#16141f'},
   {id:'navy',n:'Nacht',c:'#1b2a4a'},{id:'grid',n:'Ruitjes',c:'#ffffff',p:'grid'},{id:'lines',n:'Lijntjes',c:'#ffffff',p:'lines'},{id:'dots',n:'Stipjes',c:'#ffffff',p:'dots'}];
@@ -1070,10 +1076,8 @@ async function openHub(pid){
 }
 function todayPage(){
   const d=new Date(), seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(), all=allColorPages();
-  const fixed=all.filter(x=>!x.gen); const R=rng(seed); const pick=R()<.35||!fixed.length?null:fixed[Math.floor(R()*fixed.length)];
-  if(pick) return pick;
-  const lv=APP.profile&&APP.profile.simple?1:2; const svg=mandalaSVG(seed,lv);
-  return {id:'m-'+seed+'-'+lv,title:'Mandala van vandaag',cat:'Mandala',level:lv,svg:()=>svg,thumb:svgUrl(svg),gen:true};
+  const simple=APP.profile&&APP.profile.simple; let fixed=all.filter(x=>!x.gen&&(simple?x.level===1:x.level>=2)); if(!fixed.length)fixed=all.filter(x=>!x.gen);
+  const R=rng(seed+(APP.profile?APP.profile.id.length*7:0)); return fixed[Math.floor(R()*fixed.length)];
 }
 
 /* ---------- bibliotheek ---------- */
@@ -1081,8 +1085,6 @@ function allColorPages(){
   const out=[];
   for(const a of APP.aiPages) out.push({...a,thumb:a.file,src:a.file});
   for(const h of HAND){const svg=h.svg();out.push({...h,svg:()=>svg,thumb:svgUrl(svg)})}
-  const ms=[[101,1],[202,1],[303,2],[404,2],[505,3],[606,3],[707,3],[808,2]];
-  for(const [s,l] of ms){const svg=mandalaSVG(s,l);out.push({id:`m-${s}-${l}`,title:'Mandala',cat:'Mandala',level:l,svg:()=>svg,thumb:svgUrl(svg),gen:'mandala'})}
   const ps=[[11,1],[22,2],[33,2],[44,3],[55,3]];
   for(const [s,l] of ps){const svg=patternSVG(s,l);out.push({id:`p-${s}-${l}`,title:'Tegelpatroon',cat:'Patronen',level:l,svg:()=>svg,thumb:svgUrl(svg),gen:'pattern'})}
   return out;
@@ -1106,7 +1108,6 @@ function renderLibrary(){
     let list=allColorPages().filter(p=>(LIB.cat==='Alles'||p.cat===LIB.cat)&&(!LIB.lvl||p.level===LIB.lvl));
     if(simple) list.sort((a,b)=>a.level-b.level);
     html+=`<button class="lcard spec" id="fromPhoto"><div class="th">${ic('photo')}</div><div class="cap"><b>Van een foto</b></div></button>`;
-    if(LIB.cat==='Alles'||LIB.cat==='Mandala') html+=`<button class="lcard spec" data-new="mandala"><div class="th">${ic('dice')}</div><div class="cap"><b>Nieuwe mandala</b></div></button>`;
     if(LIB.cat==='Alles'||LIB.cat==='Patronen') html+=`<button class="lcard spec" data-new="pattern"><div class="th">${ic('grid')}</div><div class="cap"><b>Nieuw patroon</b></div></button>`;
     html+=list.map(p=>`<button class="lcard" data-id="${p.id}"><div class="th"><img loading="lazy" alt="" src="${p.thumb}"></div><div class="cap"><b>${esc(p.title)}</b>${lvlDots(p.level)}</div></button>`).join('');
     $('#libGrid').innerHTML=html;
@@ -1117,14 +1118,12 @@ function renderLibrary(){
     $('#fromPhoto').onclick=()=>pickPhoto(photoToColoring);
   }else{
     const items=[...SCENES.map(s=>({t:'scene',id:s.id,title:s.title,level:s.level,thumb:sceneThumb(s)})),
-      ...[[12,1],[34,2],[56,2],[78,3],[90,3]].map(([s,l])=>({t:'mandala',seed:s,level:l,title:'Mandala',thumb:svgUrl(mandalaSVG(s,l))}))]
+]
       .filter(x=>!LIB.lvl||x.level===LIB.lvl);
     html+=`<button class="lcard spec" id="fromPhoto"><div class="th">${ic('photo')}</div><div class="cap"><b>Van een foto</b></div></button>`;
-    html+=`<button class="lcard spec" id="newMandNum"><div class="th">${ic('dice')}</div><div class="cap"><b>Nieuwe mandala</b></div></button>`;
     html+=items.map((x,i)=>`<button class="lcard" data-i="${i}"><div class="th${x.t==='scene'?' cover':''}"><img loading="lazy" alt="" src="${x.thumb}"></div><div class="cap"><b>${esc(x.title)}</b>${lvlDots(x.level)}</div></button>`).join('');
     $('#libGrid').innerHTML=html;
     $$('#libGrid [data-i]').forEach(b=>b.onclick=()=>{const x=items[+b.dataset.i];openNumbers({src:x.t==='scene'?{t:'scene',id:x.id}:{t:'mandala',seed:x.seed,level:x.level},title:x.title})});
-    $('#newMandNum').onclick=()=>{const l=LIB.lvl||(simple?1:2);openNumbers({src:{t:'mandala',seed:(Math.random()*1e9)|0,level:l},title:'Mandala'})};
     $('#fromPhoto').onclick=()=>pickPhoto(photoToNumbers);
   }
 }
@@ -1265,6 +1264,10 @@ function symMenu(){
 let TIP={c:null,col:''};
 function softTip(){if(TIP.col===ED.color)return TIP.c;const c=mk(128,128),x=c.getContext('2d'),[r,g,b]=hexRgb(ED.color),gr=x.createRadialGradient(64,64,0,64,64,64);
   gr.addColorStop(0,`rgba(${r},${g},${b},1)`);gr.addColorStop(.55,`rgba(${r},${g},${b},.55)`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);x.fillStyle=gr;x.fillRect(0,0,128,128);TIP={c,col:ED.color};return c}
+const GPAT={};
+function grainPattern(kind,col){const key=kind+col;if(GPAT[key])return GPAT[key];const g=grain(kind).canvas,c=mk(256,256),x=c.getContext('2d');
+  x.drawImage(g,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,256,256);
+  const p=ED.sx.createPattern(c,'repeat');GPAT[key]=p;return p}
 /* ---------- vlak-masker voor 'binnen de lijnen' ---------- */
 function regionMask(p){
   const W=ED.W,H=ED.H,B=ED.barrier;let x=p.x|0,y=p.y|0;if(x<0||y<0||x>=W||y>=H)return null;
@@ -1285,8 +1288,7 @@ function strokeStart(p){
   S.mask=(ED.hasLine&&ED.inside&&ED.sym==='off'&&t.k!=='erase')?regionMask(p):null;
   ED.sx.clearRect(0,0,ED.W,ED.H);
   const st=ED.stroke.style;st.opacity=t.k==='erase'?1:S.alpha;
-  if(t.grain){const g=grain(t.grain);st.webkitMaskImage=st.maskImage=`url(${g.url})`;st.webkitMaskSize=st.maskSize='256px 256px'}
-  else{st.webkitMaskImage=st.maskImage='none'}
+  S.pat=t.grain?grainPattern(t.grain,ED.color):null;
   seg(p,p,p,true);return true;
 }
 function strokeMove(ps){if(!S.on)return;for(const p of ps){const d=Math.hypot(p.x-S.last.x,p.y-S.last.y);if(d<.8)continue;const mid={x:(S.last.x+p.x)/2,y:(S.last.y+p.y)/2};seg(S.mid,S.last,mid,false,p.p);S.dist+=d;S.mid=mid;S.last=p}}
@@ -1294,7 +1296,7 @@ function strokeEnd(){if(!S.on)return;seg(S.mid,S.last,S.last,false,S.last.p);S.o
 function strokeCancel(){if(!S.on)return;S.on=false;
   if(S.t.k==='erase'){ED.px.save();ED.px.globalCompositeOperation='copy';ED.px.drawImage(ED.before,0,0);ED.px.restore()}
   ED.sx.clearRect(0,0,ED.W,ED.H);resetStrokeStyle()}
-function resetStrokeStyle(){const st=ED.stroke.style;st.opacity=1;st.webkitMaskImage=st.maskImage='none'}
+function resetStrokeStyle(){ED.stroke.style.opacity=1}
 function bbAdd(x,y,pad){for(const m of S.mats){const X=m[0]*x+m[2]*y+m[4],Y=m[1]*x+m[3]*y+m[5];if(X-pad<S.bb[0])S.bb[0]=X-pad;if(Y-pad<S.bb[1])S.bb[1]=Y-pad;if(X+pad>S.bb[2])S.bb[2]=X+pad;if(Y+pad>S.bb[3])S.bb[3]=Y+pad}}
 function seg(a,c,b,dot,pr){
   const t=S.t,k=t.k,sz=S.size;let w=sz;
@@ -1311,7 +1313,7 @@ function seg(a,c,b,dot,pr){
       if(k==='erase')ctx.globalCompositeOperation='destination-out';
       const path=()=>{ctx.beginPath();ctx.moveTo(a.x,a.y);if(dot)ctx.lineTo(a.x+.1,a.y+.1);else ctx.quadraticCurveTo(c.x,c.y,b.x,b.y)};
       if(k==='neon'){ctx.shadowColor=ED.color;ctx.shadowBlur=w*1.4*ED.view.s;ctx.strokeStyle=ED.color;ctx.lineWidth=w*.6;path();ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=w*.22;path();ctx.stroke()}
-      else{ctx.strokeStyle=k==='rainbow'?`hsl(${(S.dist/3)%360},92%,58%)`:k==='erase'?'#000':ED.color;ctx.lineWidth=w;path();ctx.stroke()}
+      else{ctx.strokeStyle=k==='rainbow'?`hsl(${(S.dist/3)%360},92%,58%)`:k==='erase'?'#000':(S.pat||ED.color);ctx.lineWidth=w;path();ctx.stroke()}
       ctx.globalCompositeOperation='source-over';
     }else if(k==='soft'){
       const tip=softTip(),L=Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)),st=Math.max(1,w*.1);ctx.globalAlpha=.2;
@@ -1337,9 +1339,7 @@ function clampBB(bb){const x=Math.max(0,Math.floor(bb[0])),y=Math.max(0,Math.flo
 function commitStroke(){
   const r=clampBB(S.bb);
   if(r&&S.t.k!=='erase'){
-    let src=ED.stroke;
-    if(S.t.grain){const tx=ED.tmp.getContext('2d');tx.clearRect(r.x,r.y,r.w,r.h);tx.drawImage(ED.stroke,r.x,r.y,r.w,r.h,r.x,r.y,r.w,r.h);
-      tx.save();tx.beginPath();tx.rect(r.x,r.y,r.w,r.h);tx.clip();tx.globalCompositeOperation='destination-in';tx.fillStyle=tx.createPattern(grain(S.t.grain).canvas,'repeat');tx.fillRect(r.x,r.y,r.w,r.h);tx.restore();src=ED.tmp}
+    const src=ED.stroke;
     ED.px.globalAlpha=S.alpha;ED.px.drawImage(src,r.x,r.y,r.w,r.h,r.x,r.y,r.w,r.h);ED.px.globalAlpha=1;
   }
   ED.sx.clearRect(0,0,ED.W,ED.H);resetStrokeStyle();
@@ -1355,7 +1355,14 @@ function edTap(p){
     const before=ED.px.getImageData(r.x,r.y,r.w,r.h);drawSticker(ED.px,st,x,y,size,ED.color,(Math.random()-.5)*.5);pushUndo(r.x,r.y,r.w,r.h,before);edChanged(true)}
 }
 function doFill(x,y){
-  const W=ED.W,H=ED.H,B=ED.barrier,pd=ED.px.getImageData(0,0,W,H),d=pd.data,i0=(y*W+x)*4,sr=d[i0],sg=d[i0+1],sb=d[i0+2],sa=d[i0+3];
+  const W=ED.W,H=ED.H,B=ED.barrier;
+  if(B){ if(B[y*W+x]){toast('Tik in een vlakje, niet op de lijn');return}
+    const r=flood(W,H,x,y,i=>!B[i]);if(!r)return;dilate(r,W,H,2);
+    const bw=r.maxx-r.minx+1,bh=r.maxy-r.miny+1,img=ED.px.getImageData(r.minx,r.miny,bw,bh),before=new ImageData(new Uint8ClampedArray(img.data),bw,bh),d=img.data,[cr,cg,cb]=hexRgb(ED.color);
+    for(let yy=0;yy<bh;yy++){const ro=(yy+r.miny)*W+r.minx;for(let xx=0;xx<bw;xx++)if(r.m[ro+xx]){const k=(yy*bw+xx)*4;d[k]=cr;d[k+1]=cg;d[k+2]=cb;d[k+3]=255}}
+    ED.px.putImageData(img,r.minx,r.miny);pushUndo(r.minx,r.miny,bw,bh,before);edChanged(true);return;
+  }
+  const pd=ED.px.getImageData(0,0,W,H),d=pd.data,i0=(y*W+x)*4,sr=d[i0],sg=d[i0+1],sb=d[i0+2],sa=d[i0+3];
   let test;
   if(B){ if(B[y*W+x]){toast('Tik in een vlakje, niet op de lijn');return} test=i=>!B[i] }
   else test=i=>{const k=i*4;if(sa<24)return d[k+3]<24;return d[k+3]>=24&&Math.abs(d[k]-sr)+Math.abs(d[k+1]-sg)+Math.abs(d[k+2]-sb)<90&&Math.abs(d[k+3]-sa)<90};
@@ -1376,8 +1383,8 @@ function edRedo(){const e=ED.redo.pop();if(!e)return;const cur=ED.px.getImageDat
 function edComposite(scale){const W=Math.round(ED.W*scale),H=Math.round(ED.H*scale),c=mk(W,H),x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(ED.bg,0,0,W,H);x.drawImage(ED.paint,0,0,W,H);x.drawImage(ED.line,0,0,W,H);return c}
 let frameT=0;
 function edChanged(frame){
-  ED.dirty=true;edButtons();clearTimeout(ED.saveT);ED.saveT=setTimeout(edSave,1500);
-  if(frame&&performance.now()-frameT>300){frameT=performance.now();const c=edComposite(360/ED.W);toBlob(c,'image/jpeg',.72).then(b=>{if(!b)return;ED.frames.push(b);if(ED.frames.length>480)ED.frames=ED.frames.filter((_,i)=>i%2===0);edButtons()})}
+  ED.dirty=true;edButtons();clearTimeout(ED.saveT);ED.saveT=setTimeout(edSave,6000);
+  if(frame&&performance.now()-frameT>700){frameT=performance.now();const c=edComposite(360/ED.W);toBlob(c,'image/jpeg',.72).then(b=>{if(!b)return;ED.frames.push(b);if(ED.frames.length>480)ED.frames=ED.frames.filter((_,i)=>i%2===0);edButtons()})}
 }
 async function edSave(){
   if(!ED.dirty||!ED.rec)return;ED.dirty=false;clearTimeout(ED.saveT);
@@ -1424,7 +1431,7 @@ function colorPicker(init,cb){
 /* ---------- openen ---------- */
 function freshRec(kind,title,extra){return Object.assign({id:uid(),profile:APP.profile.id,kind,title,created:Date.now(),updated:Date.now()},extra||{})}
 async function newDrawing(){
-  const land=innerWidth>=innerHeight; edSetup(land?2000:1500,land?1500:2000);
+  const land=innerWidth>=innerHeight; edSetup(land?1600:1200,land?1200:1600);
   ED.rec=freshRec('draw','Tekening '+new Date().toLocaleDateString('nl-NL',{day:'numeric',month:'short'}));ED.title=ED.rec.title;ED.bgId='white';
   ED.toolPicked=false;ED.tool=APP.profile.simple?'crayon':'pencil';ED.sym='off';ED.inside=true;
   enterEditor();
@@ -1433,7 +1440,7 @@ async function openColorPage(pg){
   const b=busy('Kleurplaat klaarzetten…');await nextFrame();
   try{
     const img=pg.src?await loadImg(pg.src):await svgImg(pg.svg());
-    edSetup(2000,1500);const lc=imageToLines(img,2000,1500,pg.src?0.015:0);ED.lx.drawImage(lc,0,0);lc.width=lc.height=0;
+    edSetup(1600,1200);const lc=imageToLines(img,1600,1200,pg.src?0.015:0);ED.lx.drawImage(lc,0,0);lc.width=lc.height=0;
     ED.barrier=barrierFrom(ED.line);ED.hasLine=true;
     ED.rec=freshRec('color',pg.title,{page:pg.id});ED.title=pg.title;ED.bgId='white';ED.toolPicked=false;ED.sym='off';ED.inside=true;
     b.close();enterEditor();ED.dirty=true;edSave();
@@ -1442,7 +1449,7 @@ async function openColorPage(pg){
 async function photoToColoring(img){
   let det=2;const m=modal(`<h3>Foto naar kleurplaat</h3><p>Kies hoeveel lijnen je wilt.</p><img class="prev" id="ppPrev" alt="voorbeeld"><div class="seg" style="margin-top:12px" id="ppSeg">${[[1,'Weinig'],[2,'Normaal'],[3,'Veel']].map(([v,n])=>`<button data-v="${v}" class="${v===det?'on':''}">${n}</button>`).join('')}</div>
    <div class="mrow"><button class="btn" data-close>Annuleer</button><button class="btn pri" id="ppOk">Maak kleurplaat</button></div>`,{wide:true});
-  let out=null;const run=async()=>{m.el.querySelector('#ppPrev').style.opacity=.4;await nextFrame();out=photoToLineArt(img,det,2000);m.el.querySelector('#ppPrev').src=out.toDataURL('image/jpeg',.8);m.el.querySelector('#ppPrev').style.opacity=1};
+  let out=null;const run=async()=>{m.el.querySelector('#ppPrev').style.opacity=.4;await nextFrame();out=photoToLineArt(img,det,1600);m.el.querySelector('#ppPrev').src=out.toDataURL('image/jpeg',.8);m.el.querySelector('#ppPrev').style.opacity=1};
   m.el.querySelectorAll('#ppSeg button').forEach(b=>b.onclick=()=>{det=+b.dataset.v;m.el.querySelectorAll('#ppSeg button').forEach(x=>x.classList.toggle('on',x===b));run()});
   await run();
   m.el.querySelector('#ppOk').onclick=()=>{m.close();edSetup(out.width,out.height);const lc=imageToLines(out,out.width,out.height,0);ED.lx.drawImage(lc,0,0);lc.width=lc.height=0;out.width=out.height=0;ED.barrier=barrierFrom(ED.line);ED.hasLine=true;
