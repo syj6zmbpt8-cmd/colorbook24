@@ -15,6 +15,7 @@ async function get(url) {
 async function one(p) {
   const file = p.id + '.png', path = 'public/pages/' + file;
   if (!(await have(path))) {
+    if (!p.url) { console.warn('ontbreekt', p.id); return null; }
     try {
       await sharp(await get(p.url)).flatten({ background: '#ffffff' })
         .resize({ width: 2000, height: 1500, fit: 'contain', background: '#ffffff' })

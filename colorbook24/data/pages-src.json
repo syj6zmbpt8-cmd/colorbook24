@@ -790,5 +790,405 @@
   "level": 3,
   "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DAWnbZlGJgYfOhoaKPe4579DKU/hf_20261123_174604_d5831ba6-eee4-42ca-98f0-df6cc735c303.png",
   "color": "https://d8j0ntlcm91z4.cloudfront.net/user_3DAWnbZlGJgYfOhoaKPe4579DKU/hf_20261124_085338_0d508953-b880-40cd-bb6f-67706c10308e.png"
+ },
+ {
+  "id": "k01",
+  "title": "Ontdekker en draak bij de vulkaan",
+  "cat": "Avontuur",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/avonturier-draak-vulkaan.png"
+ },
+ {
+  "id": "k02",
+  "title": "Piratengrot met krokodil",
+  "cat": "Avontuur",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/avonturier-krokodil-piratengrot.png"
+ },
+ {
+  "id": "k03",
+  "title": "Ridder en draak bij de waterval",
+  "cat": "Fantasie",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/avontuur-1.png"
+ },
+ {
+  "id": "k04",
+  "title": "Hond in het ruimteschip",
+  "cat": "Ruimte",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/avontuur-2.png"
+ },
+ {
+  "id": "k05",
+  "title": "Draak en hond op trektocht",
+  "cat": "Avontuur",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/avontuur-3.png"
+ },
+ {
+  "id": "k06",
+  "title": "Onderwaterstad",
+  "cat": "Oceaan",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/avontuur-4.png"
+ },
+ {
+  "id": "k07",
+  "title": "De verborgen schatkamer",
+  "cat": "Avontuur",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/avontuur-5.png"
+ },
+ {
+  "id": "k08",
+  "title": "Draak en robot in de schattempel",
+  "cat": "Avontuur",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/draak-en-robot-in-schattempel.png"
+ },
+ {
+  "id": "k09",
+  "title": "Draak boven de kasteelstad",
+  "cat": "Fantasie",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/draak-kasteel-stad.png"
+ },
+ {
+  "id": "k10",
+  "title": "Ondergrondse stad",
+  "cat": "Fantasie",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/draak-ninja-ondergrondse-stad.png"
+ },
+ {
+  "id": "k11",
+  "title": "Draak bewaakt de schat",
+  "cat": "Fantasie",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/draak-schat-oude-tempel.png"
+ },
+ {
+  "id": "k12",
+  "title": "Duiken bij het piratenwrak",
+  "cat": "Oceaan",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/hond-robot-piratenschip.png"
+ },
+ {
+  "id": "k13",
+  "title": "Race door de toekomststad",
+  "cat": "Auto's",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/hond-robot-race.png"
+ },
+ {
+  "id": "k14",
+  "title": "Junglekaart",
+  "cat": "Avontuur",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/krokodil-robot-junglekaart.png"
+ },
+ {
+  "id": "k15",
+  "title": "Ninja en draak bij het bergkasteel",
+  "cat": "Stoer",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/ninja-draak-bergkasteel.png"
+ },
+ {
+  "id": "k16",
+  "title": "Ninja in de kristalgrot",
+  "cat": "Stoer",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/ninja-kristalgrot.png"
+ },
+ {
+  "id": "k17",
+  "title": "Ninja boven de oude stad",
+  "cat": "Stoer",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/ninja-oude-stad.png"
+ },
+ {
+  "id": "k18",
+  "title": "Ninja en robot in het bamboebos",
+  "cat": "Stoer",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/ninja-robot-bamboebos.png"
+ },
+ {
+  "id": "k19",
+  "title": "Piratenschip bij Drakeneiland",
+  "cat": "Avontuur",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/piratenschip-drakeneiland.png"
+ },
+ {
+  "id": "k20",
+  "title": "Robot en draak in het ruimtestation",
+  "cat": "Ruimte",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/robot-draak-ruimtestation.png"
+ },
+ {
+  "id": "k21",
+  "title": "De uitvinderswerkplaats",
+  "cat": "Robots",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/robot-hond-werkplaats.png"
+ },
+ {
+  "id": "k22",
+  "title": "Robot op de maanbasis",
+  "cat": "Ruimte",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/robot-maanbasis.png"
+ },
+ {
+  "id": "k23",
+  "title": "Tandwielendoolhof",
+  "cat": "Robots",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/robot-tandwielendoolhof.png"
+ },
+ {
+  "id": "k24",
+  "title": "Robot in de toekomststad",
+  "cat": "Robots",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/robot-toekomststad.png"
+ },
+ {
+  "id": "k25",
+  "title": "Vreemde planeet",
+  "cat": "Ruimte",
+  "level": 3,
+  "local": true,
+  "orig": "Ian/ruimteschip-vreemde-planeet.png"
+ },
+ {
+  "id": "k26",
+  "title": "Beer en draak op de maan",
+  "cat": "Ruimte",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/beer-en-draak-op-de-maan.png"
+ },
+ {
+  "id": "k27",
+  "title": "Beer en eend in de duikboot",
+  "cat": "Oceaan",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/beer-en-eend-in-onderzeeer.png"
+ },
+ {
+  "id": "k28",
+  "title": "Schatzoeken op het strand",
+  "cat": "Avontuur",
+  "level": 2,
+  "local": true,
+  "orig": "Noi/beer-kikker-schat.png"
+ },
+ {
+  "id": "k29",
+  "title": "Draak en beer met vlieger",
+  "cat": "Fantasie",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/draak-en-beer-met-vlieger.png"
+ },
+ {
+  "id": "k30",
+  "title": "Draak en eend in bad",
+  "cat": "Fantasie",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/draak-en-eend-in-bad.png"
+ },
+ {
+  "id": "k31",
+  "title": "Draak en hamster in een sok",
+  "cat": "Fantasie",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/draak-en-hamster.png"
+ },
+ {
+  "id": "k32",
+  "title": "Draak en hond vinden een schat",
+  "cat": "Avontuur",
+  "level": 2,
+  "local": true,
+  "orig": "Noi/draak-en-hond.png"
+ },
+ {
+  "id": "k33",
+  "title": "Zandkasteel bouwen",
+  "cat": "Fantasie",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/hamster-draak-zandkasteel.png"
+ },
+ {
+  "id": "k34",
+  "title": "Hamster en eend in de raceauto",
+  "cat": "Auto's",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/hamster-eend-raceauto.png"
+ },
+ {
+  "id": "k35",
+  "title": "Hamster in de luchtballon",
+  "cat": "Dieren",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/hamster-luchtballon.png"
+ },
+ {
+  "id": "k36",
+  "title": "Vliegen op een draak",
+  "cat": "Fantasie",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/hamster-op-draak.png"
+ },
+ {
+  "id": "k37",
+  "title": "Vliegend piratenschip",
+  "cat": "Avontuur",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/hond-pinguin-vliegend-piratenschip.png"
+ },
+ {
+  "id": "k38",
+  "title": "In het reuzenrad",
+  "cat": "Feest",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/kikker-beer-reuzenrad.png"
+ },
+ {
+  "id": "k39",
+  "title": "Waterglijbaan",
+  "cat": "Dieren",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/kikker-en-eend-waterglijbaan.png"
+ },
+ {
+  "id": "k40",
+  "title": "Schatkaart in de jungle",
+  "cat": "Avontuur",
+  "level": 2,
+  "local": true,
+  "orig": "Noi/kikker-hond-jungle-schat.png"
+ },
+ {
+  "id": "k41",
+  "title": "Taart bakken",
+  "cat": "Feest",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/konijn-draak-taart.png"
+ },
+ {
+  "id": "k42",
+  "title": "Konijn in het ruimteschip",
+  "cat": "Ruimte",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/konijn-en-badeend-ruimteschip.png"
+ },
+ {
+  "id": "k43",
+  "title": "Met de trein",
+  "cat": "Dieren",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/konijn-en-hond-met-trein.png"
+ },
+ {
+  "id": "k44",
+  "title": "De snoepplaneet",
+  "cat": "Fantasie",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/konijn-en-kikker-op-snoepplaneet.png"
+ },
+ {
+  "id": "k45",
+  "title": "Vliegende theepot",
+  "cat": "Fantasie",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/konijn-en-pinguin-vliegende-theepot.png"
+ },
+ {
+  "id": "k46",
+  "title": "Krokodil en konijn spelen",
+  "cat": "Dieren",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/krokodil-en-konijn.png"
+ },
+ {
+  "id": "k47",
+  "title": "Picknick op de maan",
+  "cat": "Ruimte",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/picknick-op-de-maan.png"
+ },
+ {
+  "id": "k48",
+  "title": "Pinguïn met ijsje",
+  "cat": "Dieren",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/pinguin-ijsjes.png"
+ },
+ {
+  "id": "k49",
+  "title": "De puddingkoning",
+  "cat": "Feest",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/pinguin-koning-pudding.png"
+ },
+ {
+  "id": "k50",
+  "title": "Kermis",
+  "cat": "Feest",
+  "level": 1,
+  "local": true,
+  "orig": "Noi/robot-en-beer-op-kermis.png"
  }
 ]
