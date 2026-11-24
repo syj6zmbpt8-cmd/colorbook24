@@ -412,6 +412,16 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
 
 #side .nv .ls{display:none!important}
 @media (max-width:600px){#side .nv .ll{display:none!important}#side .nv .ls{display:block!important;font-size:11px}}
+
+.pcard{position:relative;cursor:pointer}
+.pset{position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--mute);background:var(--soft)}
+.pset svg{width:20px;height:20px}
+.mtop .btn svg{width:20px;height:20px}
+.lvpick{display:grid;gap:10px}
+.lvpick button{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;text-align:left;padding:14px 18px;border-radius:18px;background:var(--soft);border:3px solid transparent}
+.lvpick button small{grid-column:1/-1;color:var(--mute)}.lvpick button b{font-size:19px}
+.lvpick button.on{border-color:var(--acc)}
+@media (max-width:600px){.mtop .btn{order:3}}
 </style>
 </head>
 <body>
@@ -1198,6 +1208,44 @@ function buildMosaic(src, cols, k, seed){
   return {W,H,lab,regions,palette:used.map(c=>rgbHex(...pal[c]))};
 }
 
+/* ---------- kleurplaat -> kleur op nummer (vlakken uit de lijnen, kleuren via grafenkleuring) ---------- */
+const NUM_PALS={
+ 1:['#ff5b3a','#ffc22e','#12b37e','#2e7dff','#ff7eb6','#8b5cf6'],
+ 2:['#ff5b3a','#ff9f1c','#ffc22e','#9be15d','#12b37e','#1aa7ec','#2e7dff','#8b5cf6','#ff7eb6'],
+ 3:['#e8202a','#ff5b3a','#ff9f1c','#ffc22e','#d7e83b','#9be15d','#12b37e','#0f7b5f','#1aa7ec','#2e7dff','#8b5cf6','#ff7eb6','#c26a2e']};
+function numbersFromPage(lineCanvas, level, seed){
+  const W=lineCanvas.width,H=lineCanvas.height,N=W*H,d=ctx2(lineCanvas).getImageData(0,0,W,H).data,b=new Uint8Array(N);
+  for(let i=0;i<N;i++) b[i]=d[i*4+3]>100?1:0;
+  const lab=new Int32Array(N).fill(-1),area=[],bord=[],sy=[];let n=0;
+  for(let i=0;i<N;i++){ if(b[i]||lab[i]>=0) continue; const st=[i];lab[i]=n;let a=0,tb=0,ay=0;
+    while(st.length){const j=st.pop();const x=j%W,y=(j-x)/W;a++;ay+=y;if(x===0||y===0||x===W-1||y===H-1)tb=1;
+      if(x>0&&!b[j-1]&&lab[j-1]<0){lab[j-1]=n;st.push(j-1)}if(x<W-1&&!b[j+1]&&lab[j+1]<0){lab[j+1]=n;st.push(j+1)}
+      if(j>=W&&!b[j-W]&&lab[j-W]<0){lab[j-W]=n;st.push(j-W)}if(j<N-W&&!b[j+W]&&lab[j+W]<0){lab[j+W]=n;st.push(j+W)}}
+    area.push(a);bord.push(tb);sy.push(ay/a/H);n++}
+  // lijnpixels toewijzen aan een buurvlak
+  for(let pass=0;pass<10;pass++){let any=false;for(let i=0;i<N;i++){if(lab[i]>=0)continue;const x=i%W;
+    const j=x>0&&lab[i-1]>=0?i-1:x<W-1&&lab[i+1]>=0?i+1:i>=W&&lab[i-W]>=0?i-W:i<N-W&&lab[i+W]>=0?i+W:-1;if(j>=0){lab[i]=lab[j];any=true}}if(!any)break}
+  for(let i=0;i<N;i++) if(lab[i]<0) lab[i]=0;
+  // buren
+  const nb=Array.from({length:n},()=>new Set());
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=lab[i];if(x<W-1){const c=lab[i+1];if(c!==a){nb[a].add(c);nb[c].add(a)}}if(y<H-1){const c=lab[i+W];if(c!==a){nb[a].add(c);nb[c].add(a)}}}
+  const pal=NUM_PALS[level]||NUM_PALS[2],R=rng(seed),col=new Int16Array(n).fill(-1);
+  const bgSky='#bfe9ff',bgGround='#c9ef9f',cols=pal.slice(),special=[];
+  // achtergrond: grote vlakken aan de rand
+  const order=[...Array(n).keys()].sort((a,b)=>area[b]-area[a]);
+  for(const r of order){ if(!bord[r]||area[r]<N*0.04) continue; col[r]=-2-(sy[r]>0.62?1:0); }
+  // grafenkleuring voor de rest (grote vlakken eerst), met wat willekeur
+  const off=Math.floor(R()*pal.length);
+  for(const r of order){ if(col[r]!==-1) continue; const used=new Set();for(const q of nb[r])if(col[q]>=0)used.add(col[q]);
+    let pick=-1;const st=Math.floor(R()*pal.length);for(let k=0;k<pal.length;k++){const c=(st+k+off)%pal.length;if(!used.has(c)){pick=c;break}}
+    col[r]=pick<0?Math.floor(R()*pal.length):pick;}
+  const full=[...pal,bgSky,bgGround],src=mk(W,H),x=ctx2(src),img=x.createImageData(W,H),p=img.data,rgb=full.map(hexRgb);
+  for(let i=0;i<N;i++){const c=col[lab[i]],k=c>=0?c:(c===-2?pal.length:pal.length+1),v=rgb[k];p[i*4]=v[0];p[i*4+1]=v[1];p[i*4+2]=v[2];p[i*4+3]=255}
+  x.putImageData(img,0,0);
+  const D=buildNumbers(src,{palette:full,minArea:[0,900,260,70][level]||260});src.width=src.height=0;
+  D.lines=lineCanvas;return D;
+}
+
 /* ===== Colorbook24 – app ===== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1267,9 +1315,10 @@ function renderHome(){
   const ps=profiles();
   $('#homeTitle').textContent=ps.length?'Wie gaat er tekenen?':'Welkom bij Colorbook24';
   $('#homeSub').textContent=ps.length?'Kies je profiel. Alles blijft op dit apparaat.':'Maak je eigen profiel. Geen account nodig: alles blijft op dit apparaat.';
-  $('#profiles').innerHTML=ps.map(p=>`<button class="pcard" data-p="${p.id}">${avatar(p)}<b>${esc(p.name)}</b><small>${p.simple?'Eenvoudig':'Alle gereedschap'}</small></button>`).join('')+
+  $('#profiles').innerHTML=ps.map(p=>`<div class="pcard" data-p="${p.id}" role="button" tabindex="0"><button class="pset" data-set="${p.id}" aria-label="Instellingen van ${esc(p.name)}">${ic('gear')}</button>${avatar(p)}<b>${esc(p.name)}</b><small>${p.simple?'Eenvoudig':'Alle gereedschap'}</small></div>`).join('')+
     `<button class="pcard add${ps.length?'':' first'}" id="addProf"><span class="av">+</span><b>${ps.length?'Nieuw profiel':'Maak je profiel'}</b><small>Voor een kind of volwassene</small></button>`;
-  $$('#profiles [data-p]').forEach(b=>b.onclick=()=>openHub(b.dataset.p));
+  $$('#profiles [data-p]').forEach(b=>b.onclick=e=>{if(e.target.closest('[data-set]'))return;openHub(b.dataset.p)});
+  $$('#profiles [data-set]').forEach(b=>b.onclick=e=>{e.stopPropagation();const pr=profiles().find(x=>x.id===b.dataset.set);if(pr)editProfile(pr,false)});
   $('#impProf').onclick=importProfile;
   $('#addProf').onclick=()=>editProfile({id:uid(),name:'',color:AVCOL[ps.length%AVCOL.length],simple:false},true);
   show('home');
@@ -1394,7 +1443,7 @@ async function renderModernHub(p){
   const order=['Mijn platen','Stoer',"Auto's",'Sport','Dansen',"Dino's",'Dieren','Ruimte','Oceaan','Fantasie','Prinsessen','Feest','Natuur','Mozaïek','Patronen'];
   const rows=order.map(c=>[c,all.filter(x=>x.cat===c).sort((a,b)=>b.level-a.level)]).filter(([c,l])=>l.length);
   const H=$('#hubModern');
-  H.innerHTML=`<div class="mtop"><h1>${greet()}, ${esc(p.name)}</h1><input type="search" class="srch" id="hubSearch" placeholder="Zoek een kleurplaat…" aria-label="Zoeken"></div>
+  H.innerHTML=`<div class="mtop"><h1>${greet()}, ${esc(p.name)}</h1><input type="search" class="srch" id="hubSearch" placeholder="Zoek een kleurplaat…" aria-label="Zoeken"><button class="btn" id="hubSet">${ic('gear')}Instellingen</button></div>
    <div class="mhero"><div class="mh-img"><img alt="" src="${tp.thumb}"></div><div class="mh-t"><span class="tag">Kleurplaat van vandaag</span><h2>${esc(tp.title)}</h2><p>${LVLN[tp.level]||''} · elke dag een nieuwe</p><button class="btn pri" id="mhGo">Begin met kleuren</button></div></div>
    <button class="maib" id="mAi">${micSvg(56)}<div><b>Bedenk je eigen kleurplaat</b><small>Zeg wat je wilt tekenen en kies uit 3 platen</small></div><span class="btn">Probeer</span></button>
    ${recs.length?`<section class="mrow"><h3><span>Verder waar je was</span><button data-all="gallery">Alles</button></h3><div class="hrow">${recs.map(r=>mcard('',r.title,r.kind==='number'?(r.done?'Klaar':'Op nummer'):r.kind==='draw'?'Tekening':'Kleurplaat',`data-rec="${r.id}"`,1)).join('')}</div></section>`:''}
@@ -1404,6 +1453,7 @@ async function renderModernHub(p){
   H.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>openColorPage(map.get(b.dataset.pg)));
   H.querySelectorAll('[data-rec]').forEach(b=>b.onclick=()=>openRecord(b.dataset.rec));
   H.querySelectorAll('[data-all]').forEach(b=>b.onclick=()=>{const c=b.dataset.all;if(c==='gallery')openGallery();else{LIB.cat=c;LIB.q='';openLibrary('color')}});
+  $('#hubSet').onclick=()=>editProfile(APP.profile,false);
   $('#mhGo').onclick=()=>openColorPage(tp);$('#mAi').onclick=aiStart;$('#mAi').classList.toggle('hide',p.ai===false);
   $('#hubSearch').onkeydown=e=>{if(e.key==='Enter'){LIB.q=e.target.value.trim();LIB.cat='Alles';openLibrary('color')}};
 }
@@ -1421,7 +1471,7 @@ function allColorPages(){
 const lvlDots=l=>`<span class="lvl" title="niveau ${l}">${[1,2,3].map(i=>`<i class="${i<=l?'f':''}"></i>`).join('')}</span>`;
 const LIB={cat:'Alles',lvl:0,q:''};
 async function openLibrary(kind){
-  await loadMyPages();LIB.kind=kind;const ls=$('#libSearch');ls.value=LIB.q||'';ls.classList.toggle('hide',kind!=='color');ls.oninput=()=>{LIB.q=ls.value.trim();renderLibrary()}; $('#libTitle').textContent=kind==='color'?'Kleurplaten':'Kleur op nummer';
+  await loadMyPages();LIB.kind=kind;const ls=$('#libSearch');ls.value=LIB.q||'';ls.classList.remove('hide');ls.oninput=()=>{LIB.q=ls.value.trim();renderLibrary()}; $('#libTitle').textContent=kind==='color'?'Kleurplaten':'Kleur op nummer';
   $('#libChips').classList.toggle('hide',kind!=='color');
   renderLibrary(); show('library');
 }
@@ -1449,16 +1499,30 @@ function renderLibrary(){
       openColorPage({id:g[0]+'-'+s+'-'+l,title:g==='mosaic'?'Mozaïek':'Tegelpatroon',level:l,svg:()=>svg})});
     $('#fromPhoto').onclick=()=>pickPhoto(photoToColoring);if($('#aiCard'))$('#aiCard').onclick=aiStart;
   }else{
-    const items=[...SCENES.map(s=>({t:'scene',id:s.id,title:s.title,level:s.level,thumb:sceneThumb(s)})),
-      ...SCENES.map((s,i)=>({t:'mosaic',id:s.id,title:'Mozaïek: '+s.title,level:1+(i%3),thumb:mosaicThumb(s)}))]
-      .filter(x=>!LIB.lvl||x.level===LIB.lvl);
+    const pages=allColorPages().filter(p=>!p.gen);
+    const all=[...SCENES.map(s=>({t:'scene',id:s.id,title:s.title,level:s.level,cat:'Tekeningen',thumb:sceneThumb(s)})),
+      ...SCENES.map((s,i)=>({t:'mosaic',id:s.id,title:'Mozaïek: '+s.title,level:1+(i%3),cat:'Mozaïek',thumb:mosaicThumb(s)})),
+      ...pages.map(p=>({t:'page',id:p.id,title:p.title,level:p.level,cat:p.cat,thumb:p.thumb}))];
+    const ncats=['Alles','Tekeningen','Mozaïek',...CATS.filter(c=>c!=='Alles'&&c!=='Mozaïek'&&pages.some(p=>p.cat===c))];
+    if(!ncats.includes(LIB.ncat))LIB.ncat='Alles';
+    $('#libChips').classList.remove('hide');
+    $('#libChips').innerHTML=ncats.map(c=>`<button class="chip ${LIB.ncat===c?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+    $$('#libChips .chip').forEach(b=>b.onclick=()=>{LIB.ncat=b.dataset.c;renderLibrary()});
+    const q=(LIB.q||'').toLowerCase();
+    const items=all.filter(x=>(LIB.ncat==='Alles'||x.cat===LIB.ncat)&&(x.t!=='page'||!LIB.lvl||true)&&(x.t==='page'||!LIB.lvl||x.level===LIB.lvl)&&(!q||(x.title+' '+x.cat).toLowerCase().includes(q)));
     html+=`<button class="lcard spec" id="fromPhoto"><div class="th">${ic('photo')}</div><div class="cap"><b>Van een foto</b></div></button>`;
     html+=`<button class="lcard spec" id="fromPhotoMz"><div class="th">${ic('grid')}</div><div class="cap"><b>Foto als mozaïek</b></div></button>`;
-    html+=items.map((x,i)=>`<button class="lcard" data-i="${i}"><div class="th${x.t==='scene'?' cover':''}"><img loading="lazy" alt="" src="${x.thumb}"></div><div class="cap"><b>${esc(x.title)}</b>${lvlDots(x.level)}</div></button>`).join('');
+    html+=items.map((x,i)=>`<button class="lcard" data-i="${i}"><div class="th${x.t==='scene'?' cover':''}"><img loading="lazy" alt="" src="${x.thumb}"></div>${x.t==='page'?'<span class="badge" style="background:var(--acc)">1·2·3</span>':''}<div class="cap"><b>${esc(x.title)}</b>${x.t==='page'?'<small style="color:var(--mute)">Kies niveau</small>':lvlDots(x.level)}</div></button>`).join('');
     $('#libGrid').innerHTML=html;
-    $$('#libGrid [data-i]').forEach(b=>b.onclick=()=>{const x=items[+b.dataset.i];openNumbers({src:x.t==='mosaic'?{t:'mosaic',scene:x.id,level:x.level}:{t:'scene',id:x.id},title:x.title})});
+    $$('#libGrid [data-i]').forEach(b=>b.onclick=()=>{const x=items[+b.dataset.i];
+      if(x.t==='page'){pickLevel(x.title,LIB.lvl||(APP.profile.simple?1:x.level||2),lv=>openNumbers({src:{t:'page',id:x.id,level:lv},title:x.title+' op nummer'}));return}
+      openNumbers({src:x.t==='mosaic'?{t:'mosaic',scene:x.id,level:x.level}:{t:'scene',id:x.id},title:x.title})});
     $('#fromPhoto').onclick=()=>pickPhoto(photoToNumbers);$('#fromPhotoMz').onclick=()=>pickPhoto((img)=>photoToNumbers(img,null,true));
   }
+}
+function pickLevel(title,def,cb){
+  const m=modal(`<h3>${esc(title)}</h3><p>Hoe moeilijk wil je het?</p><div class="lvpick">${[[1,'Makkelijk','Grote vakken, weinig kleuren'],[2,'Midden','Meer vakken en kleuren'],[3,'Moeilijk','Alle kleine stukjes']].map(([v,n,t])=>`<button data-v="${v}" class="${v===def?'on':''}"><b>${n}</b>${lvlDots(v)}<small>${t}</small></button>`).join('')}</div><div class="mrow"><button class="btn" data-close>Annuleer</button></div>`);
+  m.el.querySelectorAll('.lvpick button').forEach(b=>b.onclick=()=>{m.close();cb(+b.dataset.v)});
 }
 const THC={};
 function mosaicThumb(s){const k='mz'+s.id;if(THC[k])return THC[k];const c=mk(400,300),x=c.getContext('2d');x.scale(.4,.4);s.draw(x);
@@ -1822,6 +1886,10 @@ function neInit(){
   NE.export=()=>shareCanvas(neComposite(1),NE.title);
 }
 async function buildSource(src){
+  if(src.t==='page'){const pg=allColorPages().find(x=>x.id===src.id);if(!pg)throw new Error('plaat niet gevonden');
+    const img=pg.blob?await blobImg(pg.blob):pg.src?await loadImg(pg.src):await svgImg(pg.svg());
+    const lc=imageToLines(img,1200,900,pg.src||pg.blob?0.015:0);let h=0;for(const ch of src.id)h=(h*31+ch.charCodeAt(0))|0;
+    return numbersFromPage(lc,src.level||2,(h>>>0)+src.level)}
   if(src.t==='scene'){const sc=SCENES.find(s=>s.id===src.id),c=mk(1600,1200),x=c.getContext('2d');x.scale(1.6,1.6);sc.draw(x);
     const r=buildNumbers(c,{palette:dominantColors(c),minArea:300});c.width=c.height=0;return r}
   if(src.t==='mandala'){const img=await svgImg(mandalaSVG(src.seed,src.level));const lc=imageToLines(img,1600,1200,0.01);const r=numbersFromLineArt(lc,MPALS[src.seed%MPALS.length],src.seed);lc.width=lc.height=0;return r}
@@ -1845,10 +1913,10 @@ async function openNumbers({src,title,rec}){
     for(const [rid,ci] of NE.filled)nePaint(rid,hexRgb(D.palette[ci]),false);
     NE.cx.putImageData(NE.cd,0,0);
     // randen
-    const bx=NE.brdC.getContext('2d'),bd=bx.createImageData(W,H),lab=D.lab;
+    const bx=NE.brdC.getContext('2d');NE.lines=!!D.lines;if(D.lines){bx.clearRect(0,0,W,H);bx.drawImage(D.lines,0,0);D.lines.width=D.lines.height=0;D.lines=null}else{const bd=bx.createImageData(W,H),lab=D.lab;
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,l=lab[i];if((x<W-1&&lab[i+1]!==l)||(y<H-1&&lab[i+W]!==l)||(x>0&&lab[i-1]!==l)||(y>0&&lab[i-W]!==l)){const k=i*4;bd.data[k]=120;bd.data[k+1]=116;bd.data[k+2]=138;bd.data[k+3]=255}}
-    bx.putImageData(bd,0,0);
-    NE.brdC.style.opacity=NE.done ? 0.12 : 1;
+    bx.putImageData(bd,0,0);}
+    NE.brdC.style.opacity=NE.done&&!NE.lines ? 0.12 : 1;
     NE.view.setDoc(W,H);b.close();
     $('#nTitle').textContent=title;show('numEd');NE.view.autoFit=true;requestAnimationFrame(()=>NE.view.fit());
     nePal();neHint();neNums();neBar();if(!rec)neSave();
@@ -1890,7 +1958,7 @@ function neTapAt(p,drag){
   NE.filled.set(rid,r.c);nePaint(rid,hexRgb(D.palette[r.c]));
   if(!drag){neNums();nePal();neSaveSoon()}else{clearTimeout(NE.pt);NE.pt=setTimeout(nePal,200)}
   const left=D.regions.some((q,i)=>NE.filled.get(i)!==q.c);
-  if(!left&&!NE.done){NE.done=true;NE.brdC.style.transition='opacity 1.2s';NE.brdC.style.opacity=.12;neNums();nePal();confetti();neSave();
+  if(!left&&!NE.done){NE.done=true;NE.brdC.style.transition='opacity 1.2s';if(!NE.lines)NE.brdC.style.opacity=.12;neNums();nePal();confetti();neSave();
     setTimeout(()=>{const m=modal(`<h3>Klaar! Wat mooi.</h3><p>Je kunstwerk staat in je galerij.</p><div class="mrow"><button class="btn" data-close>Bekijken</button><button class="btn pri" id="dnExp">${ic('share')}Bewaren of delen</button></div>`);m.el.querySelector('#dnExp').onclick=()=>{m.close();NE.export()}},900)}
   else{const nxt=D.regions.some((q,i)=>q.c===NE.sel&&NE.filled.get(i)!==q.c);if(!nxt&&!drag){const n=D.palette.findIndex((_,ci)=>D.regions.some((q,i)=>q.c===ci&&NE.filled.get(i)!==q.c));if(n>=0){NE.sel=n;nePal();neHint();neNums();toast('Kleur '+(r.c+1)+' is af!')}}}
 }
@@ -1898,7 +1966,7 @@ function neComposite(scale){const D=NE.D,W=Math.round(D.W*scale),H=Math.round(D.
   // export zonder hint-tint: tijdelijk wit
   const tmp=mk(D.W,D.H),tx=tmp.getContext('2d'),cd=new ImageData(new Uint8ClampedArray(NE.cd.data),D.W,D.H),d=cd.data,lab=D.lab;
   for(let i=0;i<D.W*D.H;i++){if(!NE.filled.has(lab[i])){d[i*4]=d[i*4+1]=d[i*4+2]=255}}tx.putImageData(cd,0,0);
-  x.drawImage(tmp,0,0,W,H);x.globalAlpha=NE.done ? 0.12 : 1;x.drawImage(NE.brdC,0,0,W,H);x.globalAlpha=1;if(!NE.done)x.drawImage(NE.numC,0,0,W,H);return c}
+  x.drawImage(tmp,0,0,W,H);x.globalAlpha=NE.done&&!NE.lines ? 0.12 : 1;x.drawImage(NE.brdC,0,0,W,H);x.globalAlpha=1;if(!NE.done)x.drawImage(NE.numC,0,0,W,H);return c}
 function neSaveSoon(){clearTimeout(NE.st);NE.st=setTimeout(neSave,1200)}
 async function neSave(){clearTimeout(NE.st);if(!NE.rec)return;try{const thumb=await toBlob(neComposite(480/NE.D.W),'image/jpeg',.82);
   Object.assign(NE.rec,{title:NE.title,filled:[...NE.filled],free:NE.free,done:NE.done,thumb,updated:Date.now()});await DB.put(NE.rec)}catch(e){console.warn(e)}}
