@@ -1,5 +1,5 @@
 /* Colorbook24 service worker: alles offline beschikbaar */
-const V = 'cb24-v5';
+const V = 'cb24-v6';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'pages/index.json'];
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
@@ -7,7 +7,7 @@ self.addEventListener('install', e => {
     await c.addAll(CORE);
     try {
       const list = await (await fetch('pages/index.json', {cache: 'no-cache'})).json();
-      await Promise.all(list.map(p => c.add('pages/' + p.file).catch(() => {})));
+      await Promise.all(list.flatMap(p => [p.file, p.color].filter(Boolean)).map(f => c.add('pages/' + f).catch(() => {})));
     } catch (e) {}
     self.skipWaiting();
   })());

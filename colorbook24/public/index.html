@@ -422,6 +422,45 @@ html:not(.m) .srch{border:3px solid var(--edge);background:var(--card)}
 .lvpick button small{grid-column:1/-1;color:var(--mute)}.lvpick button b{font-size:19px}
 .lvpick button.on{border-color:var(--acc)}
 @media (max-width:600px){.mtop .btn{order:3}}
+/* ---- palet, gereedschap aanpassen, verloop, kleurenwiel ---- */
+.palpick{flex:none;display:flex;align-items:center;gap:8px;height:40px;padding:0 12px 0 6px;border-radius:20px;background:var(--soft);color:var(--ink);font-weight:800;font-size:13px;white-space:nowrap}
+.palpick i{width:28px;height:28px;border-radius:50%;flex:none}
+.palpick b{opacity:.5;font-size:11px}
+.palhint{align-self:center;color:var(--mute);font-size:13px;white-space:nowrap;padding:0 6px}
+.sw.favb{background:var(--card);color:var(--ink);font-size:20px;display:grid;place-items:center;line-height:1}
+.tool.edit b{font-size:18px;letter-spacing:1px;line-height:28px;color:var(--mute)}
+.tool.prev{opacity:.85;border:2px dashed var(--edge)}
+.tool.prev svg{width:24px;height:24px}
+.plist{display:grid;gap:6px;max-height:58vh;overflow:auto;padding-right:4px}
+.plab{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:10px 0 2px}
+.prow{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:14px;background:var(--soft);text-align:left;width:100%}
+.prow.on{box-shadow:0 0 0 3px var(--acc)}
+.prow .pn{flex:0 0 130px;font-weight:800;font-size:14px}
+.prow .ps{flex:1;display:flex;gap:3px;min-width:0;overflow:hidden}
+.prow .ps i{flex:1;max-width:34px;height:26px;border-radius:7px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.prow .pdel{flex:none;width:30px;height:30px;display:grid;place-items:center;opacity:.6}
+.prow .pdel svg{width:20px;height:20px}
+.telist{display:grid;gap:6px;max-height:56vh;overflow:auto}
+.terow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:14px;background:var(--soft)}
+.terow.off{opacity:.7}
+.terow .ti svg{width:32px;height:32px;display:block}
+.terow b{flex:1;font-size:15px}
+.ib.sm{width:38px;height:38px;min-width:38px;font-size:18px;font-weight:900}
+.ib.sm:disabled{opacity:.3}
+.gsl{display:flex;align-items:center;gap:6px}
+.gsw{width:40px;height:40px;border-radius:12px;border:3px solid var(--edge)}
+.gsw.on{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--ink)}
+.gseg{margin:0}.gseg button{padding:8px 12px}
+.ghint{max-width:90px;line-height:1.2}
+.wheelp{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center}
+.wheel{position:relative;width:240px;height:240px;flex:none;touch-action:none}
+.wheel canvas{width:240px;height:240px;border-radius:50%;display:block;touch-action:none}
+.wheel i{position:absolute;width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4);transform:translate(-50%,-50%);pointer-events:none}
+.wside{flex:1;min-width:180px;display:grid;gap:8px}
+.wside .big{height:64px;border-radius:16px}
+.wside .hex{font-weight:800;font-family:ui-monospace,monospace;color:var(--mute)}
+.cprec{display:flex;gap:6px;flex-wrap:wrap}.cprec .sw{width:32px;height:32px}
+@media (max-width:600px){.wheel,.wheel canvas{width:200px;height:200px}.prow .pn{flex-basis:96px;font-size:13px}.ghint{display:none}}
 </style>
 </head>
 <body>
@@ -572,6 +611,10 @@ const TI = {
   eraser:'<g transform="rotate(-35 24 24)"><rect x="8" y="16" width="32" height="16" rx="4" fill="#ff9fc4" stroke="#1c1a2b" stroke-width="2.4"/><path d="M26 16v16" stroke="#1c1a2b" stroke-width="2.4"/><rect x="26" y="16" width="14" height="16" rx="4" fill="#7fd3ff" stroke="#1c1a2b" stroke-width="2.4"/></g>',
   fill:'<path d="M8 22L22 8l14 14-14 14z" fill="#e9e5ef" stroke="#1c1a2b" stroke-width="2.4" stroke-linejoin="round"/><path d="M8 22h28L22 36z" class="tc" stroke="#1c1a2b" stroke-width="2.4" stroke-linejoin="round"/><path d="M41 30c0 4-1.6 6-3.5 6S34 34 34 30s3.5-8 3.5-8 3.5 4 3.5 8z" class="tc" stroke="#1c1a2b" stroke-width="2.2"/>',
   sticker:'<path d="M24 5l5.6 11.6 12.6 1.8-9.1 8.9 2.2 12.6L24 34l-11.3 5.9 2.2-12.6-9.1-8.9 12.6-1.8z" class="tc" stroke="#1c1a2b" stroke-width="2.4" stroke-linejoin="round"/><circle cx="19" cy="22" r="2" fill="#1c1a2b"/><circle cx="29" cy="22" r="2" fill="#1c1a2b"/><path d="M20 28c2.5 2.5 5.5 2.5 8 0" fill="none" stroke="#1c1a2b" stroke-width="2.2" stroke-linecap="round"/>',
+  water:'<path d="M10 34c4-6 10-8 16-6s10 2 14-2" fill="none" class="tcs" stroke-width="10" stroke-linecap="round" opacity=".45"/><g transform="rotate(40 24 24)"><rect x="21.5" y="2" width="5" height="22" rx="2.5" fill="#e8d3b0" stroke="#1c1a2b" stroke-width="2.4"/><rect x="20" y="23" width="8" height="5" fill="#cfcbd8" stroke="#1c1a2b" stroke-width="2.4"/><path d="M20 28h8c0 6-1.5 10-4 13-2.5-3-4-7-4-13z" class="tc" stroke="#1c1a2b" stroke-width="2.4" stroke-linejoin="round"/></g>',
+  pastel:'<g transform="rotate(40 24 24)"><rect x="17" y="10" width="14" height="30" rx="3" class="tc" stroke="#1c1a2b" stroke-width="2.4"/><path d="M17 10l3-5h8l3 5" class="tc" stroke="#1c1a2b" stroke-width="2.4" stroke-linejoin="round"/><rect x="17" y="20" width="14" height="10" fill="#fff" opacity=".7"/></g><g class="tcf" opacity=".55"><circle cx="9" cy="40" r="1.6"/><circle cx="13" cy="42" r="1.2"/><circle cx="7" cy="36" r="1.1"/></g>',
+  smudge:'<path d="M8 32c6-2 10-8 16-8s10 4 16 2" fill="none" class="tcs" stroke-width="9" stroke-linecap="round" opacity=".5"/><path d="M28 10c3 0 5 2 5 5v9l3 2c1.5 1 1.6 3 .5 4.3L33 34H22l-4-6 1-1 4 2V15c0-3 2-5 5-5z" fill="#f5d6b0" stroke="#1c1a2b" stroke-width="2.4" stroke-linejoin="round"/>',
+  grad:'<defs><linearGradient id="tgr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" class="tgs" stop-color="#8b5cf6"/></linearGradient></defs><rect x="7" y="7" width="34" height="34" rx="8" fill="url(#tgr)" stroke="#1c1a2b" stroke-width="2.4"/><path d="M14 34l20-20" stroke="#1c1a2b" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 4"/>',
   picker:'<g transform="rotate(45 24 24)"><rect x="20" y="3" width="8" height="12" rx="3" fill="#3a3650" stroke="#1c1a2b" stroke-width="2.4"/><rect x="17" y="15" width="14" height="4" rx="2" fill="#cfcbd8" stroke="#1c1a2b" stroke-width="2.4"/><path d="M21 19h6v16l-3 7-3-7z" fill="#fff" stroke="#1c1a2b" stroke-width="2.4" stroke-linejoin="round"/><path d="M21.5 28h5v7l-2.5 5.5-2.5-5.5z" class="tc"/></g>',
 };
 const tico = n => `<svg viewBox="0 0 48 48">${TI[n]}</svg>`;
@@ -915,8 +958,17 @@ function dilate(r,W,H,k){
 const GRAIN={};
 function grain(kind){
   if(GRAIN[kind]) return GRAIN[kind];
-  const S=256,c=mk(S,S),x=c.getContext('2d'),d=x.createImageData(S,S),R=rng(kind==='fine'?7:11);
+  const S=256,c=mk(S,S),x=c.getContext('2d'),d=x.createImageData(S,S),R=rng({fine:7,coarse:11,water:23,pastel:31,paper:41}[kind]||11);
   if(kind==='fine'){for(let i=0;i<S*S;i++){const v=R();d.data[i*4+3]=v<.18?40:150+v*105}}
+  else if(kind==='water'||kind==='pastel'||kind==='paper'){ // zachte vlekken (waterverf), fijn korrelig (pastel), papiervezel
+    const s2=kind==='water'?16:kind==='pastel'?96:64,c2=mk(s2,s2),x2=c2.getContext('2d'),d2=x2.createImageData(s2,s2);
+    for(let i=0;i<s2*s2;i++){const v=R();d2.data[i*4+3]=kind==='water'?140+v*115:kind==='pastel'?(v<.22?30:255):v*255}
+    x2.putImageData(d2,0,0);x.imageSmoothingEnabled=true;x.drawImage(c2,0,0,S,S);const g=x.getImageData(0,0,S,S);
+    for(let i=0;i<S*S;i++){const a=g.data[i*4+3],v=R();
+      if(kind==='water')d.data[i*4+3]=Math.min(255,a*(.93+v*.07));
+      else if(kind==='pastel')d.data[i*4+3]=(a>150?235:a>80?130:25)*(v<.1?.4:1);
+      else{d.data[i*4]=120;d.data[i*4+1]=100;d.data[i*4+2]=70;d.data[i*4+3]=(a*.06+v*10)|0}}
+  }
   else{ // grove vlekken: ruis op lage resolutie, opgeschaald
     const s2=64,c2=mk(s2,s2),x2=c2.getContext('2d'),d2=x2.createImageData(s2,s2);
     for(let i=0;i<s2*s2;i++){d2.data[i*4+3]=R()<.3?0:255}
@@ -1213,7 +1265,65 @@ const NUM_PALS={
  1:['#ff5b3a','#ffc22e','#12b37e','#2e7dff','#ff7eb6','#8b5cf6'],
  2:['#ff5b3a','#ff9f1c','#ffc22e','#9be15d','#12b37e','#1aa7ec','#2e7dff','#8b5cf6','#ff7eb6'],
  3:['#e8202a','#ff5b3a','#ff9f1c','#ffc22e','#d7e83b','#9be15d','#12b37e','#0f7b5f','#1aa7ec','#2e7dff','#8b5cf6','#ff7eb6','#c26a2e']};
-function numbersFromPage(lineCanvas, level, seed){
+/* kleurplaat + ingekleurde referentie -> realistische kleuren per vlak, beperkt tot een handvol kleuren */
+const NUM_K={1:10,2:16,3:24};
+function rgbLab(r,g,b){const f=v=>{v/=255;return v>0.04045?((v+0.055)/1.055)**2.4:v/12.92};const R=f(r),G=f(g),B=f(b);
+  let X=(R*.4124+G*.3576+B*.1805)/.95047,Y=R*.2126+G*.7152+B*.0722,Z=(R*.0193+G*.1192+B*.9505)/1.08883;
+  const h=t=>t>0.008856?Math.cbrt(t):7.787*t+16/116;X=h(X);Y=h(Y);Z=h(Z);return[116*Y-16,500*(X-Y),200*(Y-Z)]}
+function numbersFromColorRef(lineCanvas, colorImg, level, seed){
+  const W=lineCanvas.width,H=lineCanvas.height,N=W*H,d=ctx2(lineCanvas).getImageData(0,0,W,H).data,b=new Uint8Array(N);
+  for(let i=0;i<N;i++) b[i]=d[i*4+3]>100?1:0;
+  const cc=mk(W,H),cx=ctx2(cc);cx.fillStyle='#fff';cx.fillRect(0,0,W,H);cx.imageSmoothingQuality='high';
+  // referentie met dezelfde 'contain' als de lijnen
+  const iw=colorImg.naturalWidth||colorImg.width,ih=colorImg.naturalHeight||colorImg.height,k=Math.min(W/iw,H/ih);
+  cx.drawImage(colorImg,(W-iw*k)/2,(H-ih*k)/2,iw*k,ih*k);const cp=cx.getImageData(0,0,W,H).data;cc.width=cc.height=0;
+  // vlakken tussen de lijnen
+  const lab=new Int32Array(N).fill(-1),area=[];let n=0;
+  for(let i=0;i<N;i++){ if(b[i]||lab[i]>=0) continue; const st=[i];lab[i]=n;let a=0;
+    while(st.length){const j=st.pop();const x=j%W;a++;
+      if(x>0&&!b[j-1]&&lab[j-1]<0){lab[j-1]=n;st.push(j-1)}if(x<W-1&&!b[j+1]&&lab[j+1]<0){lab[j+1]=n;st.push(j+1)}
+      if(j>=W&&!b[j-W]&&lab[j-W]<0){lab[j-W]=n;st.push(j-W)}if(j<N-W&&!b[j+W]&&lab[j+W]<0){lab[j+W]=n;st.push(j+W)}}
+    area.push(a);n++}
+  // alleen pixels ver genoeg van een lijn meten (referentie kan iets verschoven zijn)
+  const far=new Uint8Array(N);{let m=b.slice();for(let it=0;it<3;it++){const o=m.slice();
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(m[i])continue;if((x>0&&m[i-1])||(x<W-1&&m[i+1])||(y>0&&m[i-W])||(y<H-1&&m[i+W]))o[i]=1}m=o}
+    for(let i=0;i<N;i++)far[i]=m[i]?0:1}
+  // meest voorkomende kleur per vlak (grove bakjes), daarna gemiddelde binnen dat bakje
+  const hist=new Map(),bin=i=>((cp[i*4]>>4)<<8)|((cp[i*4+1]>>4)<<4)|(cp[i*4+2]>>4);
+  const any=new Uint8Array(n);
+  for(let i=0;i<N;i++){const r=lab[i];if(r<0||!far[i])continue;any[r]=1;const key=r*4096+bin(i);hist.set(key,(hist.get(key)||0)+1)}
+  const best=new Int32Array(n).fill(-1),bc=new Int32Array(n);
+  for(const [key,c] of hist){const r=Math.floor(key/4096);if(c>bc[r]){bc[r]=c;best[r]=key%4096}}
+  const sum=new Float64Array(n*3),sc=new Float64Array(n);
+  for(let i=0;i<N;i++){const r=lab[i];if(r<0)continue;if(any[r]?(!far[i]||bin(i)!==best[r]):false)continue;
+    sum[r*3]+=cp[i*4];sum[r*3+1]+=cp[i*4+1];sum[r*3+2]+=cp[i*4+2];sc[r]++}
+  const rc=[];for(let r=0;r<n;r++){const c=sc[r]||1;rc.push([sum[r*3]/c,sum[r*3+1]/c,sum[r*3+2]/c])}
+  // gewogen k-means in Lab: maximaal K kleuren
+  const L=rc.map(c=>rgbLab(...c)),w=area.map(a=>Math.sqrt(a)),R=rng(seed);
+  const distinct=new Set(rc.map(c=>c.map(v=>v>>3).join())).size,K=Math.max(2,Math.min(NUM_K[level]||16,distinct,n));
+  const d2=(p,q)=>(p[0]-q[0])**2+(p[1]-q[1])**2+(p[2]-q[2])**2;
+  let C=[];{let bi=0;for(let r=1;r<n;r++)if(w[r]>w[bi])bi=r;C.push(L[bi].slice());
+    while(C.length<K){let tot=0;const dd=L.map((p,r)=>{const v=Math.min(...C.map(c=>d2(p,c)))*w[r];tot+=v;return v});
+      if(!tot)break;let t=R()*tot,j=0;for(;j<n-1;j++){t-=dd[j];if(t<=0)break}C.push(L[j].slice())}}
+  const asg=new Int32Array(n);
+  for(let it=0;it<15;it++){const S=C.map(()=>[0,0,0,0]);
+    for(let r=0;r<n;r++){let bi=0,bd=1e18;for(let j=0;j<C.length;j++){const v=d2(L[r],C[j]);if(v<bd){bd=v;bi=j}}asg[r]=bi;const s=S[bi];s[0]+=L[r][0]*w[r];s[1]+=L[r][1]*w[r];s[2]+=L[r][2]*w[r];s[3]+=w[r]}
+    C=C.map((c,j)=>S[j][3]?[S[j][0]/S[j][3],S[j][1]/S[j][3],S[j][2]/S[j][3]]:c)}
+  // kleur per cluster = gewogen gemiddelde RGB van de leden
+  const CR=C.map(()=>[0,0,0,0]);for(let r=0;r<n;r++){const s=CR[asg[r]];s[0]+=rc[r][0]*w[r];s[1]+=rc[r][1]*w[r];s[2]+=rc[r][2]*w[r];s[3]+=w[r]}
+  const pal=CR.filter(s=>s[3]).map(s=>rgbHex(s[0]/s[3],s[1]/s[3],s[2]/s[3]));
+  const idx=new Map();CR.forEach((s,j)=>{if(s[3])idx.set(j,idx.size)});const prgb=pal.map(hexRgb);
+  // lijnpixels aan een buurvlak geven
+  for(let pass=0;pass<10;pass++){let mv=false;for(let i=0;i<N;i++){if(lab[i]>=0)continue;const x=i%W;
+    const j=x>0&&lab[i-1]>=0?i-1:x<W-1&&lab[i+1]>=0?i+1:i>=W&&lab[i-W]>=0?i-W:i<N-W&&lab[i+W]>=0?i+W:-1;if(j>=0){lab[i]=lab[j];mv=true}}if(!mv)break}
+  const src=mk(W,H),x=ctx2(src),img=x.createImageData(W,H),p=img.data;
+  for(let i=0;i<N;i++){const r=lab[i]<0?0:lab[i],v=prgb[idx.get(asg[r])];p[i*4]=v[0];p[i*4+1]=v[1];p[i*4+2]=v[2];p[i*4+3]=255}
+  x.putImageData(img,0,0);
+  const D=buildNumbers(src,{palette:pal,minArea:[0,900,260,70][level]||260});src.width=src.height=0;
+  D.lines=lineCanvas;return D;
+}
+function numbersFromPage(lineCanvas, level, seed, colorImg){
+  if(colorImg) return numbersFromColorRef(lineCanvas,colorImg,level,seed);
   const W=lineCanvas.width,H=lineCanvas.height,N=W*H,d=ctx2(lineCanvas).getImageData(0,0,W,H).data,b=new Uint8Array(N);
   for(let i=0;i<N;i++) b[i]=d[i*4+3]>100?1:0;
   const lab=new Int32Array(N).fill(-1),area=[],bord=[],sy=[];let n=0;
@@ -1266,12 +1376,31 @@ const TOOLS={
   sticker:{n:'Stickers',k:'sticker'},
   picker:{n:'Pipet',k:'pick'},
   eraser:{n:'Gum',k:'erase',a:1,press:.5},
+  water:{n:'Waterverf',k:'line',grain:'water',a:.5,press:1,wob:1},
+  pastel:{n:'Pastel',k:'line',grain:'pastel',a:.85,press:.5},
+  smudge:{n:'Vervager',k:'smudge',a:1,press:.6},
+  grad:{n:'Verloop',k:'grad'},
 };
-const T_FULL=['fill','crayon','pencil','pen','marker','brush','eraser','spray','neon','rainbow','glitter','sticker','picker'];
+const T_FULL=['fill','grad','crayon','pencil','pastel','pen','marker','brush','water','smudge','eraser','spray','neon','rainbow','glitter','sticker','picker'];
+const T_ADULT=['fill','grad','pencil','pastel','pen','marker','brush','water','smudge','eraser','picker'];
 const T_KID=['fill','crayon','marker','brush','eraser','rainbow','glitter','neon','sticker'];
-const DEF_SIZE={pencil:6,pen:8,marker:22,crayon:26,brush:40,spray:60,neon:18,rainbow:24,glitter:40,eraser:40,sticker:30};
+const DEF_SIZE={water:50,pastel:30,smudge:44,pencil:6,pen:8,marker:22,crayon:26,brush:40,spray:60,neon:18,rainbow:24,glitter:40,eraser:40,sticker:30};
 const BGS=[{id:'white',n:'Wit',c:'#ffffff'},{id:'cream',n:'Crème',c:'#fbf3e0'},{id:'kraft',n:'Karton',c:'#d6b88e'},{id:'black',n:'Zwart',c:'#16141f'},
-  {id:'navy',n:'Nacht',c:'#1b2a4a'},{id:'grid',n:'Ruitjes',c:'#ffffff',p:'grid'},{id:'lines',n:'Lijntjes',c:'#ffffff',p:'lines'},{id:'dots',n:'Stipjes',c:'#ffffff',p:'dots'}];
+  {id:'navy',n:'Nacht',c:'#1b2a4a'},{id:'aqua',n:'Aquarelpapier',c:'#fbf7ee',p:'tex'},{id:'grid',n:'Ruitjes',c:'#ffffff',p:'grid'},{id:'lines',n:'Lijntjes',c:'#ffffff',p:'lines'},{id:'dots',n:'Stipjes',c:'#ffffff',p:'dots'}];
+const SUGG=[
+ {n:'Herfstbos',c:['#6b4226','#a0522d','#d2691e','#e1a95f','#f3d9a4','#8f9779','#556b2f','#2f3e2b']},
+ {n:'Terracotta',c:['#e07a5f','#c8553d','#f2cc8f','#f4f1de','#81b29a','#3d405b','#b5838d','#6d597a']},
+ {n:'Salie & zand',c:['#b7c4a8','#8a9a7b','#5f7161','#e9e2d0','#d6c6a8','#c2a878','#a47551','#3f3a33']},
+ {n:'Scandinavisch',c:['#f4f1ea','#d9d4cb','#a8b5b2','#6c8a91','#3e5a66','#e8c9a0','#c97b63','#2b2d2f']},
+ {n:'Pasteldroom',c:['#ffd6e0','#ffefb5','#c9f2c7','#bde0fe','#cdb4db','#ffc8a2','#a0e7e5','#fdfd96']},
+ {n:'Zonsondergang',c:['#ffcdb2','#ffb4a2','#f6bd60','#f28482','#e5989b','#b5838d','#6d6875','#84a59d']},
+ {n:'Oceaan',c:['#03045e','#023e8a','#0077b6','#00b4d8','#90e0ef','#caf0f8','#e9c46a','#f4a261']},
+ {n:"Retro jaren '70",c:['#e76f51','#f4a261','#e9c46a','#2a9d8f','#264653','#d4a373','#a3b18a','#6b705c']},
+ {n:'Lavendelveld',c:['#e0d4f7','#b8a1e3','#8e7cc3','#5e548e','#f3e9d2','#c8b6a6','#9fc5a8','#4d6a5a']},
+ {n:'Botanisch',c:['#1b4332','#2d6a4f','#40916c','#74c69d','#b7e4c7','#f1faee','#e9c46a','#bc6c25']},
+ {n:'Kersenbloesem',c:['#ffe5ec','#ffc2d1','#ffb3c6','#ff8fab','#fb6f92','#9d0208','#6a994e','#fefae0']},
+ {n:'Winterhuis',c:['#2b2d42','#8d99ae','#edf2f4','#ef233c','#d90429','#a3b18a','#588157','#e9d8a6']},
+];
 const SYMS=[{id:'off',n:'Uit'},{id:'mirror',n:'Spiegel'},{id:'quad',n:'4 kanten'},{id:'k6',n:'Caleidoscoop 6'},{id:'k8',n:'Caleidoscoop 8'}];
 
 /* ---------- algemene UI ---------- */
@@ -1499,7 +1628,7 @@ function renderLibrary(){
       openColorPage({id:g[0]+'-'+s+'-'+l,title:g==='mosaic'?'Mozaïek':'Tegelpatroon',level:l,svg:()=>svg})});
     $('#fromPhoto').onclick=()=>pickPhoto(photoToColoring);if($('#aiCard'))$('#aiCard').onclick=aiStart;
   }else{
-    const pages=allColorPages().filter(p=>!p.gen);
+    const pages=allColorPages().filter(p=>!p.gen&&p.color);
     const all=[...SCENES.map(s=>({t:'scene',id:s.id,title:s.title,level:s.level,cat:'Tekeningen',thumb:sceneThumb(s)})),
       ...SCENES.map((s,i)=>({t:'mosaic',id:s.id,title:'Mozaïek: '+s.title,level:1+(i%3),cat:'Mozaïek',thumb:mosaicThumb(s)})),
       ...pages.map(p=>({t:'page',id:p.id,title:p.title,level:p.level,cat:p.cat,thumb:p.thumb}))];
@@ -1593,32 +1722,108 @@ function edSetup(W,H){
   ED.ov.setAttribute('viewBox',`0 0 ${W} ${H}`);ED.undo=[];ED.redo=[];ED.frames=[];ED.barrier=null;ED.hasLine=false;ED.maskCache=null;ED.lineBlob=null;
   ED.view.setDoc(W,H);
 }
+function profTools(p){const t=LS.get('tools.'+p.id,null);if(Array.isArray(t)){const v=t.filter(x=>TOOLS[x]);if(v.length)return v}return T_FULL}
+function getFav(p){return LS.get('fav.'+p.id,null)||LS.get('custom.'+p.id,[])}
+function setFav(p,l){LS.set('fav.'+p.id,l.slice(0,24))}
+function palSets(p){const own=LS.get('pals.'+p.id,[]);
+  return [{id:'std',n:'Standaard',c:PAL_FULL},{id:'fav',n:'Favorieten',c:getFav(p)},{id:'recent',n:'Recent gebruikt',c:LS.get('recent.'+p.id,[])},
+    ...own.map((o,i)=>({id:'u:'+i,n:o.n,c:o.c,own:1})),...SUGG.map((s,i)=>({id:'s:'+i,n:s.n,c:s.c,sug:1}))]}
+function setTool(t){if(t!==ED.tool){ED.prevTool=ED.tool}ED.tool=t;ED.toolPicked=true;if(t==='sticker')stickerMenu();edButtons()}
+function setColor(c){if(ED.tool==='grad'&&ED.gslot===1)ED.color2=c;else{if(c!==ED.color)ED.prevColor=ED.color;ED.color=c;if(ED.tool==='eraser'||ED.tool==='picker'||ED.tool==='smudge')ED.tool=ED.lastPaint||'crayon'}edButtons()}
+function addRecent(c){const p=APP.profile;if(!p||p.simple||!c)return;const k='recent.'+p.id,l=LS.get(k,[]);if(l[0]===c)return;LS.set(k,[c,...l.filter(x=>x!==c)].slice(0,16));
+  if(LS.get('palsel.'+p.id,'std')==='recent')renderPal()}
 function edBuildUI(){
-  const p=APP.profile, simple=p.simple; const tools=simple?T_KID:T_FULL;
+  const p=APP.profile, simple=p.simple; const tools=simple?T_KID:profTools(p);
   $('#editor').classList.toggle('simple',simple); $('#editor').classList.toggle('lefty',!!p.lefty);
   ED.view.pencilOnly=!!p.pencil;ED.view.allowZoom=p.zoom!=null?p.zoom:!p.simple;
   if(!tools.includes(ED.tool)) ED.tool=tools[0];
-  if(ED.hasLine&&!ED.toolPicked) ED.tool='fill';
-  $('#toolRail').innerHTML=tools.map(t=>`<button class="tool" data-t="${t}" aria-label="${TOOLS[t].n}">${tico(t)}<span>${TOOLS[t].n}</span></button>`).join('');
-  $$('#toolRail .tool').forEach(b=>b.onclick=()=>{ED.tool=b.dataset.t;ED.toolPicked=true;if(ED.tool==='sticker')stickerMenu();edButtons()});
-  const pal=simple?PAL_KID:PAL_FULL; const custom=LS.get('custom.'+p.id,[]);
-  $('#pal').innerHTML=pal.concat(custom).map(c=>`<button class="sw" data-c="${c}" style="background:${c}" aria-label="kleur ${c}"></button>`).join('')+`<button class="sw custom" id="swCustom" aria-label="Eigen kleur"></button>`;
-  $$('#pal .sw[data-c]').forEach(b=>b.onclick=()=>{ED.color=b.dataset.c;if(ED.tool==='eraser'||ED.tool==='picker')ED.tool=ED.lastPaint||'crayon';edButtons()});
-  $('#swCustom').onclick=()=>colorPicker(ED.color,c=>{ED.color=c;const cs=LS.get('custom.'+p.id,[]).filter(x=>x!==c);cs.unshift(c);LS.set('custom.'+p.id,cs.slice(0,8));edBuildUI()});
-  // grootte
-  if(simple){$('#sizes').innerHTML=[['S',.45],['M',1],['L',2.1]].map(([n,f])=>`<button class="sbtn" data-f="${f}" aria-label="maat ${n}"><i style="width:${8+f*10}px;height:${8+f*10}px"></i></button>`).join('');
+  if(ED.hasLine&&!ED.toolPicked&&tools.includes('fill')) ED.tool='fill';
+  ED.color2=ED.color2||'#ffffff';ED.gmode=ED.gmode||'lin';ED.gslot=ED.gslot||0;
+  $('#toolRail').innerHTML=(simple?'':`<button class="tool prev hide" id="prevTool" aria-label="Vorig gereedschap"></button>`)+
+    tools.map(t=>`<button class="tool" data-t="${t}" aria-label="${TOOLS[t].n}">${tico(t)}<span>${TOOLS[t].n}</span></button>`).join('')+
+    (simple?'':`<button class="tool edit" id="toolEdit" aria-label="Gereedschap aanpassen"><b>•••</b><span>Aanpassen</span></button>`);
+  $$('#toolRail .tool[data-t]').forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+  if(!simple){$('#toolEdit').onclick=toolEditor;$('#prevTool').onclick=()=>{if(ED.prevTool&&TOOLS[ED.prevTool])setTool(ED.prevTool)}}
+  renderPal();ED._sm=null;
+  edButtons();
+}
+function renderPal(){
+  const p=APP.profile,simple=p.simple;
+  if(simple){const custom=getFav(p);
+    $('#pal').innerHTML=PAL_KID.concat(custom.slice(0,8)).map(c=>`<button class="sw" data-c="${c}" style="background:${c}" aria-label="kleur ${c}"></button>`).join('')+`<button class="sw custom" id="swCustom" aria-label="Eigen kleur"></button>`;
+  }else{
+    const sets=palSets(p),sel=LS.get('palsel.'+p.id,'std'),set=sets.find(s=>s.id===sel)||sets[0];
+    $('#pal').innerHTML=`<button class="palpick" id="palPick" aria-label="Kies palet"><i style="background:linear-gradient(90deg,${(set.c.length?set.c:['#ddd','#eee']).slice(0,4).join(',')})"></i>${esc(set.n)}<b>▾</b></button>`+
+      (set.c.length?set.c.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" aria-label="kleur ${c}"></button>`).join(''):`<span class="palhint">${set.id==='fav'?'Nog leeg. Tik op ♡ om de huidige kleur te bewaren.':'Nog leeg. Kleuren die je gebruikt komen hier.'}</span>`)+
+      `<button class="sw custom" id="swCustom" aria-label="Kleurenwiel"></button><button class="sw favb" id="swFav" aria-label="Huidige kleur bij favorieten">♡</button>`;
+    $('#palPick').onclick=paletteMenu;
+    $('#swFav').onclick=()=>{const l=getFav(p);if(l.includes(ED.color)){toast('Staat al in je favorieten');return}setFav(p,[ED.color,...l]);toast('Bij favorieten gezet');renderPal();edButtons()};
+    // lang drukken = verwijderen uit favorieten of eigen palet
+    if(set.id==='fav'||set.own)$$('#pal .sw[data-c]').forEach(b=>{let t;
+      b.onpointerdown=()=>{t=setTimeout(()=>{b._lp=1;const c=b.dataset.c;
+        if(set.id==='fav')setFav(p,getFav(p).filter(x=>x!==c));else{const own=LS.get('pals.'+p.id,[]),o=own[+set.id.slice(2)];o.c=o.c.filter(x=>x!==c);LS.set('pals.'+p.id,own)}
+        toast('Kleur weggehaald');renderPal();edButtons()},650)};
+      b.onpointerup=b.onpointerleave=b.onpointercancel=()=>clearTimeout(t)});
+  }
+  $$('#pal .sw[data-c]').forEach(b=>b.onclick=()=>{if(b._lp){b._lp=0;return}setColor(b.dataset.c)});
+  $('#swCustom').onclick=()=>colorPicker(ED.tool==='grad'&&ED.gslot===1?ED.color2:ED.color,c=>{setColor(c);const l=getFav(p);if(!l.includes(c))setFav(p,[c,...l]);renderPal();edButtons()});
+}
+function paletteMenu(){
+  const p=APP.profile,sets=palSets(p),sel=LS.get('palsel.'+p.id,'std');
+  const row=s=>`<button class="prow ${s.id===sel?'on':''}" data-id="${s.id}"><span class="pn">${esc(s.n)}</span><span class="ps">${(s.c.length?s.c:['#e8e6ee']).slice(0,10).map(c=>`<i style="background:${c}"></i>`).join('')}</span>${s.own?`<span class="pdel" data-del="${s.id}" aria-label="Palet verwijderen">${ic('trash')}</span>`:''}</button>`;
+  const m=modal(`<h3>Paletten</h3><div class="plist">
+    <div class="plab">Basis</div>${sets.filter(s=>!s.own&&!s.sug).map(row).join('')}
+    ${sets.some(s=>s.own)?`<div class="plab">Mijn paletten</div>${sets.filter(s=>s.own).map(row).join('')}`:''}
+    <div class="plab">Sfeerpaletten</div>${sets.filter(s=>s.sug).map(row).join('')}</div>
+    <p style="margin:12px 0 0">Tip: houd een kleur in je favorieten of eigen palet ingedrukt om hem weg te halen.</p>
+    <div class="mrow"><button class="btn" id="palSave">Favorieten bewaren als palet</button><button class="btn pri" data-close>Klaar</button></div>`,{wide:true});
+  m.el.querySelectorAll('.prow').forEach(b=>b.onclick=e=>{const d=e.target.closest('[data-del]');
+    if(d){const own=LS.get('pals.'+p.id,[]);own.splice(+d.dataset.del.slice(2),1);LS.set('pals.'+p.id,own);if(sel.startsWith('u:'))LS.set('palsel.'+p.id,'std');m.close();renderPal();edButtons();paletteMenu();return}
+    LS.set('palsel.'+p.id,b.dataset.id);m.close();renderPal();edButtons()});
+  m.el.querySelector('#palSave').onclick=()=>{const f=getFav(p);if(!f.length){toast('Je favorieten zijn nog leeg');return}m.close();
+    renameDialog('Mijn palet',n=>{const own=LS.get('pals.'+p.id,[]);own.push({n,c:f.slice()});LS.set('pals.'+p.id,own);LS.set('palsel.'+p.id,'u:'+(own.length-1));renderPal();edButtons();toast('Palet bewaard')})};
+}
+function toolEditor(){
+  const p=APP.profile;let list=profTools(p).slice();
+  const draw=()=>{const off=T_FULL.filter(t=>!list.includes(t));
+    m.el.querySelector('#teList').innerHTML=list.map((t,i)=>`<div class="terow"><span class="ti">${tico(t)}</span><b>${TOOLS[t].n}</b>
+      <button class="ib sm" data-up="${i}" aria-label="Omhoog" ${i?'':'disabled'}>↑</button><button class="ib sm" data-dn="${i}" aria-label="Omlaag" ${i<list.length-1?'':'disabled'}>↓</button>
+      <button class="ib sm rm" data-rm="${t}" aria-label="Weghalen">−</button></div>`).join('')+
+      (off.length?`<div class="plab">Niet in je balk</div>`+off.map(t=>`<div class="terow off"><span class="ti">${tico(t)}</span><b>${TOOLS[t].n}</b><button class="ib sm add" data-add="${t}" aria-label="Toevoegen">+</button></div>`).join(''):'');
+    m.el.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const i=+b.dataset.up;[list[i-1],list[i]]=[list[i],list[i-1]];draw()});
+    m.el.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{const i=+b.dataset.dn;[list[i+1],list[i]]=[list[i],list[i+1]];draw()});
+    m.el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{if(list.length<2){toast('Houd minstens één gereedschap');return}list=list.filter(x=>x!==b.dataset.rm);draw()});
+    m.el.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{list.push(b.dataset.add);draw()});};
+  const m=modal(`<h3>Jouw gereedschap</h3><p>Kies wat in je balk staat en in welke volgorde.</p><div class="telist" id="teList"></div>
+    <div class="mrow"><button class="btn" id="teAll">Alles</button><button class="btn" id="teCalm">Rustig</button><button class="btn pri" id="teOk">Klaar</button></div>`);
+  draw();
+  m.el.querySelector('#teAll').onclick=()=>{list=T_FULL.slice();draw()};
+  m.el.querySelector('#teCalm').onclick=()=>{list=T_ADULT.slice();draw()};
+  m.el.querySelector('#teOk').onclick=()=>{LS.set('tools.'+p.id,list);m.close();edBuildUI()};
+}
+function renderSizes(){
+  const simple=APP.profile.simple,mode=simple?'k':ED.tool==='grad'?'g':'s';if(ED._sm===mode)return;ED._sm=mode;
+  if(mode==='k'){$('#sizes').innerHTML=[['S',.45],['M',1],['L',2.1]].map(([n,f])=>`<button class="sbtn" data-f="${f}" aria-label="maat ${n}"><i style="width:${8+f*10}px;height:${8+f*10}px"></i></button>`).join('');
     $$('#sizes .sbtn').forEach(b=>b.onclick=()=>{ED.sizes[ED.tool]=Math.round((DEF_SIZE[ED.tool]||20)*+b.dataset.f);edButtons()});}
+  else if(mode==='g'){$('#sizes').innerHTML=`<div class="gsl"><button class="gsw" data-g="0" aria-label="Kleur 1"></button><button class="ib sm" id="gSwap" aria-label="Wissel kleuren">⇄</button><button class="gsw" data-g="1" aria-label="Kleur 2"></button></div>
+    <div class="seg gseg"><button data-m="lin">Recht</button><button data-m="rad">Rond</button></div><div class="lab ghint">Tik of sleep in een vlak</div>`;
+    $$('#sizes .gsw').forEach(b=>b.onclick=()=>{ED.gslot=+b.dataset.g;edButtons()});
+    $('#gSwap').onclick=()=>{[ED.color,ED.color2]=[ED.color2,ED.color];edButtons()};
+    $$('#sizes .gseg button').forEach(b=>b.onclick=()=>{ED.gmode=b.dataset.m;edButtons()});}
   else{$('#sizes').innerHTML=`<div class="dot"><i id="sizeDot"></i></div><div><div class="lab">Dikte</div><input type="range" id="sizeR" min="1" max="160" aria-label="Dikte"></div><div><div class="lab">Dekking</div><input type="range" id="alphaR" min="10" max="100" aria-label="Dekking"></div>`;
     $('#sizeR').oninput=e=>{ED.sizes[ED.tool]=+e.target.value;edButtons()};$('#alphaR').oninput=e=>{ED.alpha=e.target.value/100;edButtons()};}
-  edButtons();
 }
 function curSize(){return ED.sizes[ED.tool]||DEF_SIZE[ED.tool]||20}
 function edButtons(){
-  const t=ED.tool; if(TOOLS[t].k!=='erase'&&TOOLS[t].k!=='pick'&&TOOLS[t].k!=='fill'&&TOOLS[t].k!=='sticker')ED.lastPaint=t;
-  $$('#toolRail .tool').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const t=ED.tool; if(!['erase','pick','fill','sticker','smudge','grad'].includes(TOOLS[t].k))ED.lastPaint=t;
+  renderSizes();
+  $$('#toolRail .tool[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const pv=$('#prevTool');if(pv){const ok=ED.prevTool&&ED.prevTool!==t&&TOOLS[ED.prevTool];pv.classList.toggle('hide',!ok);if(ok&&pv.dataset.t2!==ED.prevTool){pv.dataset.t2=ED.prevTool;pv.innerHTML=`${tico(ED.prevTool)}<span>↩ ${TOOLS[ED.prevTool].n}</span>`}}
+  $$('#sizes .gsw').forEach(b=>{const g=+b.dataset.g;b.style.background=g?ED.color2:ED.color;b.classList.toggle('on',g===ED.gslot)});
+  $$('#sizes .gseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===ED.gmode));
   $('#editor').style.setProperty('--c',ED.color);
-  $$('#toolRail .tc').forEach(e=>e.setAttribute('fill',ED.color));$$('#toolRail .tcf').forEach(e=>e.setAttribute('fill',ED.color));$$('#toolRail .tcs').forEach(e=>e.setAttribute('stroke',ED.color));
-  $$('#pal .sw[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===ED.color));
+  $$('#toolRail .tc').forEach(e=>e.setAttribute('fill',ED.color));$$('#toolRail .tcf').forEach(e=>e.setAttribute('fill',ED.color));$$('#toolRail .tcs').forEach(e=>e.setAttribute('stroke',ED.color));$$('#toolRail .tgs').forEach(e=>e.setAttribute('stop-color',ED.color));
+  {const cur=ED.tool==='grad'&&ED.gslot===1?ED.color2:ED.color;$$('#pal .sw[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===cur))}
   const sz=curSize();
   if($('#sizeR')){$('#sizeR').value=sz;$('#alphaR').value=Math.round(ED.alpha*100);const d=$('#sizeDot');const v=Math.max(3,Math.min(40,sz*.35));d.style.width=d.style.height=v+'px';d.style.background=ED.color;d.style.opacity=ED.alpha}
   $$('#sizes .sbtn').forEach(b=>{const f=+b.dataset.f;b.classList.toggle('on',Math.abs(Math.round((DEF_SIZE[t]||20)*f)-sz)<1)});
@@ -1634,7 +1839,8 @@ function drawBg(){
   if(b.p){x.strokeStyle='rgba(46,125,255,.22)';x.fillStyle='rgba(46,125,255,.28)';x.lineWidth=2;const s=Math.round(W/32);
     if(b.p==='grid'){x.beginPath();for(let i=s;i<W;i+=s){x.moveTo(i,0);x.lineTo(i,H)}for(let j=s;j<H;j+=s){x.moveTo(0,j);x.lineTo(W,j)}x.stroke()}
     if(b.p==='lines'){x.beginPath();for(let j=s*2;j<H;j+=s*1.4){x.moveTo(0,j);x.lineTo(W,j)}x.stroke();x.strokeStyle='rgba(255,91,58,.35)';x.beginPath();x.moveTo(s*3,0);x.lineTo(s*3,H);x.stroke()}
-    if(b.p==='dots'){for(let i=s;i<W;i+=s)for(let j=s;j<H;j+=s){x.beginPath();x.arc(i,j,3,0,7);x.fill()}}}
+    if(b.p==='dots'){for(let i=s;i<W;i+=s)for(let j=s;j<H;j+=s){x.beginPath();x.arc(i,j,3,0,7);x.fill()}}
+    if(b.p==='tex'){const g=grain('paper').canvas;x.save();x.globalAlpha=.5;x.fillStyle=x.createPattern(g,'repeat');x.fillRect(0,0,W,H);x.restore()}}
   $('#stage').style.background=b.c;
 }
 function bgMenu(){
@@ -1682,20 +1888,22 @@ function regionMask(p){
 /* ---------- streken ---------- */
 const S={};
 function strokeStart(p){
-  const t=TOOLS[ED.tool];if(['fill','sticker','pick'].includes(t.k))return false;
+  const t=TOOLS[ED.tool];
+  if(t.k==='grad'){S.on=true;S.t=t;S.g0=p;S.g1=p;gradGuide();return true}
+  if(['fill','sticker','pick'].includes(t.k))return false;
   S.on=true;S.t=t;S.key=ED.tool;S.last=p;S.mid={x:p.x,y:p.y};S.w=null;S.dist=0;S.bb=[1e9,1e9,-1e9,-1e9];S.mats=symMats();S.size=curSize();
   S.alpha=(t.a||1)*(APP.profile.simple?1:ED.alpha);
   const bx=ED.before.getContext('2d');bx.clearRect(0,0,ED.W,ED.H);bx.drawImage(ED.paint,0,0);
-  S.mask=(ED.hasLine&&ED.inside&&ED.sym==='off'&&t.k!=='erase')?regionMask(p):null;
+  S.mask=(ED.hasLine&&ED.inside&&ED.sym==='off'&&t.k!=='erase'&&t.k!=='smudge')?regionMask(p):null;S.sp=null;
   ED.sx.clearRect(0,0,ED.W,ED.H);
-  const st=ED.stroke.style;st.opacity=t.k==='erase'?1:S.alpha;
+  const st=ED.stroke.style;st.opacity=t.k==='erase'||t.k==='smudge'?1:S.alpha;
   S.pat=t.grain?grainPattern(t.grain,ED.color):null;
   S.fbb=null;seg(p,p,p,true);flushMask();return true;
 }
-function strokeMove(ps){if(!S.on)return;const minD=Math.max(.8,S.size*.12);for(const p of ps){const d=Math.hypot(p.x-S.last.x,p.y-S.last.y);if(d<minD)continue;const mid={x:(S.last.x+p.x)/2,y:(S.last.y+p.y)/2};seg(S.mid,S.last,mid,false,p.p);S.dist+=d;S.mid=mid;S.last=p}flushMask()}
-function strokeEnd(){if(!S.on)return;seg(S.mid,S.last,S.last,false,S.last.p);flushMask();S.on=false;commitStroke()}
-function strokeCancel(){if(!S.on)return;S.on=false;
-  if(S.t.k==='erase'){ED.px.save();ED.px.globalCompositeOperation='copy';ED.px.drawImage(ED.before,0,0);ED.px.restore()}
+function strokeMove(ps){if(!S.on)return;if(S.t.k==='grad'){S.g1=ps[ps.length-1];gradGuide();return}const minD=Math.max(.8,S.size*.12);for(const p of ps){const d=Math.hypot(p.x-S.last.x,p.y-S.last.y);if(d<minD)continue;const mid={x:(S.last.x+p.x)/2,y:(S.last.y+p.y)/2};seg(S.mid,S.last,mid,false,p.p);S.dist+=d;S.mid=mid;S.last=p}flushMask()}
+function strokeEnd(){if(!S.on)return;if(S.t.k==='grad'){S.on=false;ED.ov.innerHTML='';const d=Math.hypot(S.g1.x-S.g0.x,S.g1.y-S.g0.y);gradFill(S.g0,d>ED.W*.02?S.g1:null);return}seg(S.mid,S.last,S.last,false,S.last.p);flushMask();S.on=false;commitStroke()}
+function strokeCancel(){if(!S.on)return;S.on=false;if(S.t.k==='grad'){ED.ov.innerHTML='';return}
+  if(S.t.k==='erase'||S.t.k==='smudge'){ED.px.save();ED.px.globalCompositeOperation='copy';ED.px.drawImage(ED.before,0,0);ED.px.restore()}
   ED.sx.clearRect(0,0,ED.W,ED.H);resetStrokeStyle()}
 function resetStrokeStyle(){ED.stroke.style.opacity=1}
 function bbAdd(x,y,pad){for(const m of S.mats){const X=m[0]*x+m[2]*y+m[4],Y=m[1]*x+m[3]*y+m[5];if(X-pad<S.bb[0])S.bb[0]=X-pad;if(Y-pad<S.bb[1])S.bb[1]=Y-pad;if(X+pad>S.bb[2])S.bb[2]=X+pad;if(Y+pad>S.bb[3])S.bb[3]=Y+pad}}
@@ -1703,6 +1911,8 @@ function seg(a,c,b,dot,pr){
   const t=S.t,k=t.k,sz=S.size;let w=sz;
   if(t.press&&pr!=null&&pr!==1){w=sz*(1-t.press+t.press*Math.min(1.25,.25+pr*1.1))}
   S.w=S.w==null?w:S.w*.55+w*.45;w=S.w;
+  if(t.wob)w*=.85+.3*Math.sin(S.dist*.05)*Math.sin(S.dist*.013+1);
+  if(k==='smudge'){smudgeSeg(a,b,w);return}
   const ctx=k==='erase'?ED.px:ED.sx;
   const lo=[Math.min(a.x,b.x,c.x),Math.min(a.y,b.y,c.y),Math.max(a.x,b.x,c.x),Math.max(a.y,b.y,c.y)];
   const pad=(k==='spray'||k==='glitter'?sz:k==='neon'?w*1.8:w)+4;
@@ -1743,7 +1953,7 @@ function flushMask(){
 function clampBB(bb){const x=Math.max(0,Math.floor(bb[0])),y=Math.max(0,Math.floor(bb[1])),x2=Math.min(ED.W,Math.ceil(bb[2])),y2=Math.min(ED.H,Math.ceil(bb[3]));return x2>x&&y2>y?{x,y,w:x2-x,h:y2-y}:null}
 function commitStroke(){
   const r=clampBB(S.bb);
-  if(r&&S.t.k!=='erase'){
+  if(r&&S.t.k!=='erase'&&S.t.k!=='smudge'){addRecent(ED.color);
     const src=ED.stroke;
     ED.px.globalAlpha=S.alpha;ED.px.drawImage(src,r.x,r.y,r.w,r.h,r.x,r.y,r.w,r.h);ED.px.globalAlpha=1;
   }
@@ -1751,10 +1961,43 @@ function commitStroke(){
   if(r)pushUndo(r.x,r.y,r.w,r.h,ED.before.getContext('2d').getImageData(r.x,r.y,r.w,r.h));
   edChanged(true);
 }
+/* ---------- vervager: verf meeslepen ---------- */
+function smudgeSeg(a,b,w){
+  const L=Math.hypot(b.x-a.x,b.y-a.y),st=Math.max(1,w*.12),px=ED.px,W=ED.W,H=ED.H,r=w/2;
+  if(!S.sp)S.sp={x:a.x,y:a.y};
+  for(let d=0;d<=L;d+=st){const q=L?d/L:0,x=a.x+(b.x-a.x)*q,y=a.y+(b.y-a.y)*q,s=S.sp;
+    let sx=s.x-r,sy=s.y-r,dx=x-r,dy=y-r,sw=w,sh=w;
+    if(sx<0){dx-=sx;sw+=sx;sx=0}if(sy<0){dy-=sy;sh+=sy;sy=0}if(sx+sw>W)sw=W-sx;if(sy+sh>H)sh=H-sy;
+    if(sw>1&&sh>1){px.save();px.beginPath();px.arc(x,y,r,0,6.2832);px.clip();px.globalAlpha=.42;px.drawImage(ED.paint,sx,sy,sw,sh,dx,dy,sw,sh);px.restore()}
+    S.sp={x,y};
+    const pad=r+2;S.bb=[Math.min(S.bb[0],x-pad),Math.min(S.bb[1],y-pad),Math.max(S.bb[2],x+pad),Math.max(S.bb[3],y+pad)];}
+}
+/* ---------- verloop ---------- */
+function gradGuide(){const a=S.g0,b=S.g1,w=ED.W/300;
+  ED.ov.innerHTML=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff" stroke-width="${w*3}" stroke-linecap="round"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#1d1b2c" stroke-width="${w}" stroke-dasharray="${w*4} ${w*3}"/><circle cx="${a.x}" cy="${a.y}" r="${w*6}" fill="${ED.color}" stroke="#fff" stroke-width="${w*2}"/><circle cx="${b.x}" cy="${b.y}" r="${w*6}" fill="${ED.color2}" stroke="#fff" stroke-width="${w*2}"/>`}
+function fillRegion(x,y){
+  const W=ED.W,H=ED.H,B=ED.barrier;
+  if(B){if(B[y*W+x]){toast('Tik in een vlakje, niet op de lijn');return null}const r=flood(W,H,x,y,i=>!B[i]);if(r)dilate(r,W,H,2);return r}
+  const pd=ED.px.getImageData(0,0,W,H),d=pd.data,i0=(y*W+x)*4,sr=d[i0],sg=d[i0+1],sb=d[i0+2],sa=d[i0+3];
+  const r=flood(W,H,x,y,i=>{const k=i*4;if(sa<24)return d[k+3]<24;return d[k+3]>=24&&Math.abs(d[k]-sr)+Math.abs(d[k+1]-sg)+Math.abs(d[k+2]-sb)<90&&Math.abs(d[k+3]-sa)<90});
+  if(r)dilate(r,W,H,1);return r}
+function gradFill(a,b){
+  const x=a.x|0,y=a.y|0,W=ED.W;if(x<0||y<0||x>=W||y>=ED.H)return;
+  const r=fillRegion(x,y);if(!r)return;
+  const bw=r.maxx-r.minx+1,bh=r.maxy-r.miny+1,c=mk(bw,bh),gx=c.getContext('2d');let g;
+  if(ED.gmode==='rad'){const R=b?Math.hypot(b.x-a.x,b.y-a.y):Math.max(bw,bh)*.6;g=gx.createRadialGradient(a.x-r.minx,a.y-r.miny,0,a.x-r.minx,a.y-r.miny,Math.max(4,R))}
+  else if(b)g=gx.createLinearGradient(a.x-r.minx,a.y-r.miny,b.x-r.minx,b.y-r.miny);
+  else g=gx.createLinearGradient(0,0,0,bh);
+  g.addColorStop(0,ED.color);g.addColorStop(1,ED.color2);gx.fillStyle=g;gx.fillRect(0,0,bw,bh);
+  const gd=gx.getImageData(0,0,bw,bh).data,img=ED.px.getImageData(r.minx,r.miny,bw,bh),before=new ImageData(new Uint8ClampedArray(img.data),bw,bh),d=img.data;
+  for(let yy=0;yy<bh;yy++){const ro=(yy+r.miny)*W+r.minx;for(let xx=0;xx<bw;xx++)if(r.m[ro+xx]){const k=(yy*bw+xx)*4;d[k]=gd[k];d[k+1]=gd[k+1];d[k+2]=gd[k+2];d[k+3]=255}}
+  c.width=c.height=0;ED.px.putImageData(img,r.minx,r.miny);pushUndo(r.minx,r.miny,bw,bh,before);addRecent(ED.color);addRecent(ED.color2);edChanged(true);
+}
 /* ---------- tik-gereedschap ---------- */
 function edTap(p){
   const t=TOOLS[ED.tool];const x=p.x|0,y=p.y|0;if(x<0||y<0||x>=ED.W||y>=ED.H)return;
-  if(t.k==='fill')doFill(x,y);
+  if(t.k==='fill'){doFill(x,y);addRecent(ED.color)}
+  else if(t.k==='grad')gradFill(p,null);
   else if(t.k==='pick'){const d=ED.px.getImageData(x,y,1,1).data;let c;if(d[3]>30)c=rgbHex(d[0],d[1],d[2]);else{const b=ED.bx.getImageData(x,y,1,1).data;c=rgbHex(b[0],b[1],b[2])}ED.color=c;ED.tool=ED.lastPaint||'crayon';edButtons();toast('Kleur gepakt')}
   else if(t.k==='sticker'){const st=STICKERS.find(s=>s.id===ED.sticker)||STICKERS[0],size=60+curSize()*4,r=clampBB([x-size*.8,y-size*.8,x+size*.8,y+size*.8]);if(!r)return;
     const before=ED.px.getImageData(r.x,r.y,r.w,r.h);drawSticker(ED.px,st,x,y,size,ED.color,(Math.random()-.5)*.5);pushUndo(r.x,r.y,r.w,r.h,before);edChanged(true)}
@@ -1825,15 +2068,23 @@ function replay(){
 }
 /* ---------- kleurkiezer ---------- */
 function colorPicker(init,cb){
-  let [h,s,l]=hex2hsl(init);
-  const m=modal(`<h3>Eigen kleur</h3><div class="picker"><div class="big" id="cpBig"></div>
-   <div class="lab">Kleur</div><input type="range" class="hue" id="cpH" min="0" max="360" value="${h}">
-   <div class="lab">Fel</div><input type="range" id="cpS" min="0" max="100" value="${s}">
-   <div class="lab">Licht</div><input type="range" id="cpL" min="5" max="95" value="${l}"></div>
+  let [h,s,l]=hex2hsl(init);const p=APP.profile,rec=p&&!p.simple?LS.get('recent.'+p.id,[]).slice(0,10):[];
+  const m=modal(`<h3>Kies een kleur</h3><div class="picker wheelp"><div class="wheel"><canvas id="cpW" width="240" height="240"></canvas><i id="cpDot"></i></div>
+   <div class="wside"><div class="big" id="cpBig"></div><div class="hex" id="cpHex"></div>
+   <div class="lab">Licht / donker</div><input type="range" id="cpL" min="5" max="95" value="${l}">
+   ${rec.length?`<div class="lab">Recent</div><div class="cprec">${rec.map(c=>`<button class="sw" data-c="${c}" style="background:${c}"></button>`).join('')}</div>`:''}</div></div>
    <div class="mrow"><button class="btn" data-close>Annuleer</button><button class="btn pri" id="cpOk">Gebruik</button></div>`);
-  const upd=()=>{h=+m.el.querySelector('#cpH').value;s=+m.el.querySelector('#cpS').value;l=+m.el.querySelector('#cpL').value;m.el.querySelector('#cpBig').style.background=hsl2hex(h,s,l);
-    m.el.querySelector('#cpS').style.setProperty('background','transparent')};
-  ['#cpH','#cpS','#cpL'].forEach(q=>m.el.querySelector(q).oninput=upd);upd();
+  const cv=m.el.querySelector('#cpW'),cx=cv.getContext('2d'),R=120,dot=m.el.querySelector('#cpDot');
+  const paint=()=>{const img=cx.createImageData(240,240),d=img.data;for(let y=0;y<240;y++)for(let x=0;x<240;x++){const dx=x-R,dy=y-R,rr=Math.hypot(dx,dy);if(rr>R)continue;
+      const hh=(Math.atan2(dy,dx)*180/Math.PI+360)%360,[r_,g_,b_]=hexRgb(hsl2hex(hh,rr/R*100,l)),k=(y*240+x)*4;d[k]=r_;d[k+1]=g_;d[k+2]=b_;d[k+3]=rr>R-1?(R-rr)*255:255}cx.putImageData(img,0,0)};
+  const upd=()=>{const c=hsl2hex(h,s,l);m.el.querySelector('#cpBig').style.background=c;m.el.querySelector('#cpHex').textContent=c.toUpperCase();
+    const a=h*Math.PI/180,rr=s/100;dot.style.left=(50+Math.cos(a)*rr*50)+'%';dot.style.top=(50+Math.sin(a)*rr*50)+'%';dot.style.background=c;
+    m.el.querySelector('#cpL').style.background=`linear-gradient(90deg,#000,${hsl2hex(h,s,50)},#fff)`};
+  const pick=e=>{const b=cv.getBoundingClientRect(),x=(e.clientX-b.left)/b.width*240-R,y=(e.clientY-b.top)/b.height*240-R;h=(Math.atan2(y,x)*180/Math.PI+360)%360;s=Math.min(100,Math.hypot(x,y)/R*100);upd()};
+  cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pick(e);cv.onpointermove=pick};cv.onpointerup=cv.onpointercancel=()=>{cv.onpointermove=null};
+  m.el.querySelector('#cpL').oninput=e=>{l=+e.target.value;paint();upd()};
+  m.el.querySelectorAll('.cprec .sw').forEach(b=>b.onclick=()=>{[h,s,l]=hex2hsl(b.dataset.c);m.el.querySelector('#cpL').value=l;paint();upd()});
+  paint();upd();
   m.el.querySelector('#cpOk').onclick=()=>{cb(hsl2hex(h,s,l));m.close()};
 }
 /* ---------- openen ---------- */
@@ -1889,7 +2140,8 @@ async function buildSource(src){
   if(src.t==='page'){const pg=allColorPages().find(x=>x.id===src.id);if(!pg)throw new Error('plaat niet gevonden');
     const img=pg.blob?await blobImg(pg.blob):pg.src?await loadImg(pg.src):await svgImg(pg.svg());
     const lc=imageToLines(img,1200,900,pg.src||pg.blob?0.015:0);let h=0;for(const ch of src.id)h=(h*31+ch.charCodeAt(0))|0;
-    return numbersFromPage(lc,src.level||2,(h>>>0)+src.level)}
+    const ci=pg.color?await loadImg(pg.color).catch(()=>null):null;
+    return numbersFromPage(lc,src.level||2,(h>>>0)+src.level,ci)}
   if(src.t==='scene'){const sc=SCENES.find(s=>s.id===src.id),c=mk(1600,1200),x=c.getContext('2d');x.scale(1.6,1.6);sc.draw(x);
     const r=buildNumbers(c,{palette:dominantColors(c),minArea:300});c.width=c.height=0;return r}
   if(src.t==='mandala'){const img=await svgImg(mandalaSVG(src.seed,src.level));const lc=imageToLines(img,1600,1200,0.01);const r=numbersFromLineArt(lc,MPALS[src.seed%MPALS.length],src.seed);lc.width=lc.height=0;return r}
@@ -2069,7 +2321,7 @@ async function boot(){
   // iconen in de html
   $$('[data-ic]').forEach(e=>e.innerHTML=ic(e.dataset.ic));
   await DB.open();
-  try{const r=await fetch('pages/index.json',{cache:'no-cache'});if(r.ok){const j=await r.json();APP.aiPages=j.map(p=>({...p,file:'pages/'+p.file}))}}catch(e){}
+  try{const r=await fetch('pages/index.json',{cache:'no-cache'});if(r.ok){const j=await r.json();APP.aiPages=j.map(p=>({...p,file:'pages/'+p.file,color:p.color?'pages/'+p.color:undefined}))}}catch(e){}
   edInit();neInit();
   $$('#side .nv').forEach(b=>b.onclick=()=>{const v=b.dataset.v;if(v==='hub')openHub(APP.profile.id);else if(v==='draw')newDrawing();else if(v==='ai')aiStart();else if(v==='gallery')openGallery();else{LIB.cat='Alles';LIB.q='';openLibrary(v)}});
   $('#sideProf').onclick=renderHome;
